@@ -38,7 +38,7 @@ defmodule Gulib.Mixfile do
 
   defp package do
     %{
-      files: ["priv", "lib", "mix.exs", "README*", "CHANGELOG*", "LICENSE*"],
+      files: ["priv", "lib", "mix.exs", "README*"],
       maintainers: ["happy"],
       licenses: ["BSD 3-Clause"],
       links: %{"Github" => "https://github.com/gialib/melib"}
