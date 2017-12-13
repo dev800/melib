@@ -155,16 +155,24 @@ defmodule Melib.Mogrify do
   end
 
   defp arguments_for_saving(image, path) do
-    base_arguments = ["-write", path, image.path]
+    base_arguments = ["-write", path, append_gif_frame_to_path(image)]
     arguments(image) ++ base_arguments
   end
 
   defp arguments_for_creating(image, path) do
-    [image.path] ++ arguments(image) ++ [path]
+    [append_gif_frame_to_path(image)] ++ arguments(image) ++ [path]
   end
 
   defp arguments_for_watermark(image, path) do
     watermark_arguments(image) ++ [path, path]
+  end
+
+  defp append_gif_frame_to_path(image) do
+    if image.operations[:gif_frame] do
+      image.path <> "[#{image.operations[:gif_frame]}]"
+    else
+      image.path
+    end
   end
 
   defp watermark_arguments(image) do
@@ -176,6 +184,7 @@ defmodule Melib.Mogrify do
   end
 
   defp normalize_arguments({option, :original}),       do: ["#{option}"]
+  defp normalize_arguments({:gif_frame, _watermark}),  do: []
   defp normalize_arguments({:watermark, _watermark}),  do: []
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
   defp normalize_arguments({"annotate", params}),      do: ~w(-annotate #{params})
@@ -333,6 +342,11 @@ defmodule Melib.Mogrify do
 
   def quality(image, quality) do
     %{image | operations: image.operations ++ [quality: quality]}
+  end
+
+  def gif_thumbnail(image, opts \\ []) do
+    gif_frame = opts |> Keyword.get(:gif_frame, 0)
+    %{image | operations: image.operations ++ [gif_frame: gif_frame]}
   end
 
   @doc """

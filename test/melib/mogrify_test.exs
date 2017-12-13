@@ -21,8 +21,22 @@ defmodule Melib.MogrifyTest do
   describe "Basic Testing For" do
     setup do
       File.mkdir_p!(@fixture_tmp_folder)
-
       %{}
+    end
+
+    test "gif resize" do
+      @fixture_animated
+      |> Mogrify.open
+      |> Mogrify.resize("180>")
+      |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180.gif")
+    end
+
+    test "gif resize and thumbnail" do
+      @fixture_animated
+      |> Mogrify.open
+      |> Mogrify.resize("180>")
+      |> Mogrify.gif_thumbnail
+      |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180.jpg")
     end
 
     test "resize" do
