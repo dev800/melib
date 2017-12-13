@@ -1,4 +1,4 @@
-defmodule Gulib.Mixfile do
+defmodule Melib.Mixfile do
   use Mix.Project
 
   def project do
