@@ -75,19 +75,48 @@ defmodule Melib.Identify do
   def put_md5(nil), do: nil
   def put_md5(image) do
     image = image |> put_file
-    image |> Map.put(:md5, Melib.md5(image.file))
+
+    if image.md5 do
+      image
+    else
+      image |> Map.put(:md5, Melib.md5(image.file))
+    end
   end
 
   def put_sha256(nil), do: nil
   def put_sha256(image) do
     image = image |> put_file
-    image |> Map.put(:sha256, Melib.sha256(image.file))
+
+    if image.sha256 do
+      image
+    else
+      image |> Map.put(:sha256, Melib.sha256(image.file))
+    end
   end
 
   def put_sha512(nil), do: nil
   def put_sha512(image) do
     image = image |> put_file
-    image |> Map.put(:sha512, Melib.sha512(image.file))
+
+    if image.sha512 do
+      image
+    else
+      image |> Map.put(:sha512, Melib.sha512(image.file))
+    end
+  end
+
+  def put_exif(nil), do: nil
+  def put_exif(image) do
+    image = image |> put_file
+
+    if image.format == "jpeg" do
+      case Melib.Exif.exif_from_jpeg_buffer(image.file) do
+        {:ok, exif} -> Map.put(image, :exif, exif)
+        _ -> image
+      end
+    else
+      image
+    end
   end
 
   def parse_verbose(data, file_path), do: parse_verbose(data, file_path, [])
@@ -116,7 +145,8 @@ defmodule Melib.Identify do
       width:       width,
       height:      height,
       operations:  [],
-      dirty:       %{}
+      dirty:       %{},
+      exif:        %{}
     }
   end
 

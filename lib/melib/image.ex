@@ -16,6 +16,7 @@ defmodule Melib.Image do
   @type frame_count :: integer
   @type operations  :: Keyword.t
   @type dirty       :: %{atom => any}
+  @type exif        :: %{atom => any}
   @type file        :: binary
 
   @type t :: %__MODULE__{
@@ -35,6 +36,7 @@ defmodule Melib.Image do
     animated:    animated,
     operations:  operations,
     dirty:       dirty,
+    exif:        exif,
     file:        file
   }
 
@@ -53,6 +55,7 @@ defmodule Melib.Image do
             height:       nil,
             animated:     false,
             operations:   [],
+            exif:         %{},
             dirty:        %{},
             file:         nil
 
