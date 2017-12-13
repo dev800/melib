@@ -120,7 +120,7 @@ defmodule Melib.Identify do
   end
 
   def parse_verbose(data, file_path), do: parse_verbose(data, file_path, [])
-  def parse_verbose(data, file_path, _opts) do
+  def parse_verbose(data, file_path, opts) do
     %{size: size} = File.stat! file_path
     mime_type = mime_type(file_path)
     filename = file_path |> Path.basename
@@ -133,21 +133,28 @@ defmodule Melib.Identify do
       height: height
     } = data
 
-    %Image{
-      animated:    animated,
-      filename:    filename,
-      size:        size,
-      path:        file_path,
-      postfix:     postfix,
-      ext:         file_path |> Path.extname |> String.downcase,
-      format:      format,
-      mime_type:   mime_type,
-      width:       width,
-      height:      height,
-      operations:  [],
-      dirty:       %{},
-      exif:        %{}
-    }
+    image =
+      %Image{
+        animated:    animated,
+        filename:    filename,
+        size:        size,
+        path:        file_path,
+        postfix:     postfix,
+        ext:         file_path |> Path.extname |> String.downcase,
+        format:      format,
+        mime_type:   mime_type,
+        width:       width,
+        height:      height,
+        operations:  [],
+        dirty:       %{},
+        exif:        %{}
+      }
+
+    image = if opts[:md5], do: put_md5(image), else: image
+    image = if opts[:sha256], do: put_sha256(image), else: image
+    image = if opts[:sha512], do: put_sha512(image), else: image
+
+    image
   end
 
   def get_format_by_mime_type(type) do
