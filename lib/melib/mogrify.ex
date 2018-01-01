@@ -267,13 +267,14 @@ defmodule Melib.Mogrify do
   """
   def format(image, format) do
     downcase_format = String.downcase(format)
+    postfix = "." <> downcase_format
     ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
     dirty =
       image.dirty
       |> Map.put(:path, "#{rootname}#{ext}")
       |> Map.put(:format, downcase_format)
-      |> Map.put(:postfix, downcase_format)
+      |> Map.put(:postfix, postfix)
       |> Map.put(:mime_type, MIME.type(downcase_format))
 
     %{image | operations: image.operations ++ [format: format],

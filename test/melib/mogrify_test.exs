@@ -206,17 +206,17 @@ defmodule Melib.MogrifyTest do
 
     test ".verbose" do
       image = open(@fixture)
-      assert %Image{postfix: "jpg", ext: ".jpg", height: 292, width: 300, animated: false} = verbose(image)
+      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} = verbose(image)
     end
 
     test ".verbose when file name has spaces" do
       image = open(@fixture_with_space)
-      assert %Image{postfix: "jpg", ext: ".jpg", height: 292, width: 300, animated: false} = verbose(image)
+      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} = verbose(image)
     end
 
     test ".verbose animated" do
       image = open(@fixture_animated)
-      assert %Image{postfix: "gif", ext: ".gif", animated: true} = verbose(image)
+      assert %Image{postfix: ".gif", ext: ".gif", animated: true} = verbose(image)
     end
 
     test ".verbose should not change file modification time" do
@@ -236,12 +236,12 @@ defmodule Melib.MogrifyTest do
 
     test ".format" do
       image = open(@fixture) |> format("png") |> save |> verbose
-      assert %Image{postfix: "png", ext: ".png", height: 292, width: 300} = image
+      assert %Image{postfix: ".png", ext: ".png", height: 292, width: 300} = image
     end
 
     test ".format updates format after save" do
       image = open(@fixture) |> format("png") |> save
-      assert %Image{postfix: "png", ext: ".png"} = image
+      assert %Image{postfix: ".png", ext: ".png"} = image
     end
 
     test ".resize" do

@@ -122,7 +122,8 @@ defmodule Melib.Identify do
   def put_mime_type(nil), do: nil
   def put_mime_type(attachment) do
     mime_type = mime_type(attachment.path)
-    format = postfix = MIME.extensions(mime_type) |> List.first
+    format = MIME.extensions(mime_type) |> List.first
+    postfix = "." <> format
     animated = format == "gif"
 
     attachment
