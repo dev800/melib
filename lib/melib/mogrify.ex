@@ -267,7 +267,12 @@ defmodule Melib.Mogrify do
   """
   def format(image, format) do
     downcase_format = String.downcase(format)
-    postfix = "." <> downcase_format
+    postfix =
+      if downcase_format && downcase_format != "" do
+        "." <> downcase_format
+      else
+        ""
+      end
     ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
     dirty =
