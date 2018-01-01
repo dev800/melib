@@ -1,18 +1,12 @@
 defmodule Melib.Identify do
   alias Melib.Image
+  alias Melib.Attachment
 
-  @formats_by_mime_type %{
-    "image/jpeg" => "jpeg",
-    "image/png" => "png",
-    "image/gif" => "gif",
-    "image/bmp" => "bmp"
-  }
-
-  def verbose(file_path), do: verbose(file_path, [])
-  def verbose(%Image{path: file_path}, opts) do
-    verbose(file_path, opts)
+  def verbose(file_path, type), do: verbose(file_path, type, [])
+  def verbose(file_path, :attachment, opts) do
+    parse_verbose(%{}, file_path, :attachment, opts)
   end
-  def verbose(file_path, _opts) do
+  def verbose(file_path, :image, _opts) do
     case Melib.system_cmd("identify", ["-format", "%m:%w:%h", file_path <> "[0]"], stderr_to_stdout: true) do
       {rows_text, 0} ->
         data = rows_text |> String.split(":") |> Enum.map(fn(i) -> String.trim(i) end)
@@ -31,6 +25,9 @@ defmodule Melib.Identify do
 
   def mime_type(file_path), do: mime_type(file_path, [])
   def mime_type(%Image{path: file_path}, opts) do
+    mime_type(file_path, opts)
+  end
+  def mime_type(%Attachment{path: file_path}, opts) do
     mime_type(file_path, opts)
   end
   def mime_type(file_path, _opts) do
@@ -53,14 +50,16 @@ defmodule Melib.Identify do
 
   def identify(file_path), do: identify(file_path, [])
   def identify(file_path, opts) do
-    file_path
-    |> verbose(opts)
-    |> parse_verbose(file_path, opts)
-  end
+    data = %{path: file_path} |> put_mime_type
 
-  def put_mime_type(nil), do: nil
-  def put_mime_type(image) do
-    image |> mime_type(image.path)
+    case data[:mime_type] do
+      "image/" <> _format ->
+        data
+        |> Map.merge(verbose(file_path, :image, opts))
+        |> parse_verbose(file_path, :image, opts)
+      _ ->
+        data |> parse_verbose(file_path, :attachment, opts)
+    end
   end
 
   def put_file(nil), do: nil
@@ -106,10 +105,10 @@ defmodule Melib.Identify do
   end
 
   def put_exif(nil), do: nil
-  def put_exif(image) do
+  def put_exif(%Image{} = image) do
     image = image |> put_file
 
-    if image.format == "jpeg" do
+    if image.format in ~w(jpg jpeg) do
       case Melib.Exif.exif_from_jpeg_buffer(image.file) do
         {:ok, exif} -> Map.put(image, :exif, exif)
         _ -> image
@@ -118,31 +117,64 @@ defmodule Melib.Identify do
       image
     end
   end
+  def put_exif(attachment), do: attachment
 
-  def parse_verbose(data, file_path), do: parse_verbose(data, file_path, [])
-  def parse_verbose(data, file_path, opts) do
-    %{size: size} = File.stat! file_path
-    mime_type = mime_type(file_path)
-    filename = file_path |> Path.basename
-    format = get_format_by_mime_type(mime_type)
-    postfix = "." <> format
+  def put_mime_type(nil), do: nil
+  def put_mime_type(attachment) do
+    mime_type = mime_type(attachment.path)
+    format = postfix = MIME.extensions(mime_type) |> List.first
     animated = format == "gif"
 
+    attachment
+    |> Map.put(:mime_type, mime_type)
+    |> Map.put(:format, format)
+    |> Map.put(:postfix, postfix)
+    |> Map.put(:ext, Path.extname(attachment.path))
+    |> Map.put(:animated, animated)
+  end
+
+  def parse_verbose(data, file_path, type), do: parse_verbose(data, file_path, type, [])
+  def parse_verbose(data, file_path, :attachment, opts) do
+    %{size: size} = File.stat! file_path
+    filename = file_path |> Path.basename
+
+    attachment =
+      %Attachment{
+        ext:         data[:ext],
+        mime_type:   data[:mime_type],
+        postfix:     data[:postfix],
+        format:      data[:format],
+        filename:    filename,
+        size:        size,
+        path:        file_path,
+        operations:  [],
+        dirty:       %{}
+      }
+
+    attachment = if opts[:md5], do: put_md5(attachment), else: attachment
+    attachment = if opts[:sha256], do: put_sha256(attachment), else: attachment
+    attachment = if opts[:sha512], do: put_sha512(attachment), else: attachment
+
+    attachment
+  end
+  def parse_verbose(data, file_path, :image, opts) do
     %{
       width: width,
       height: height
     } = data
+    %{size: size} = File.stat! file_path
+    filename = file_path |> Path.basename
 
     image =
       %Image{
-        animated:    animated,
+        animated:    data[:animated],
+        ext:         data[:ext],
+        format:      data[:format],
+        mime_type:   data[:mime_type],
+        postfix:     data[:postfix],
         filename:    filename,
         size:        size,
         path:        file_path,
-        postfix:     postfix,
-        ext:         file_path |> Path.extname |> String.downcase,
-        format:      format,
-        mime_type:   mime_type,
         width:       width,
         height:      height,
         operations:  [],
@@ -155,10 +187,6 @@ defmodule Melib.Identify do
     image = if opts[:sha512], do: put_sha512(image), else: image
 
     image
-  end
-
-  def get_format_by_mime_type(type) do
-    Map.get(@formats_by_mime_type, type) || (type |> String.split("/") |> List.last)
   end
 
 end

@@ -49,7 +49,7 @@ defmodule Melib.Mogrify do
       raise(File.Error)
     end
 
-    %Image{path: path, ext: Path.extname(path)}
+    %Image{path: path} |> Melib.Identify.put_mime_type
   end
 
   @doc """
@@ -115,9 +115,13 @@ defmodule Melib.Mogrify do
   end
 
   defp image_after_command(image, output_path) do
+    format = Map.get(image.dirty, :format, image.format)
+    postfix = Map.get(image.dirty, :postfix, image.postfix)
+
     %{image | path: output_path,
               ext: Path.extname(output_path),
-              format: Map.get(image.dirty, :format, image.format),
+              format: format,
+              postfix: postfix,
               operations: [],
               dirty: %{}}
   end
@@ -265,9 +269,15 @@ defmodule Melib.Mogrify do
     downcase_format = String.downcase(format)
     ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
+    dirty =
+      image.dirty
+      |> Map.put(:path, "#{rootname}#{ext}")
+      |> Map.put(:format, downcase_format)
+      |> Map.put(:postfix, downcase_format)
+      |> Map.put(:mime_type, MIME.type(downcase_format))
 
     %{image | operations: image.operations ++ [format: format],
-              dirty: image.dirty |> Map.put(:path, "#{rootname}#{ext}") |> Map.put(:format, downcase_format)}
+              dirty: dirty}
   end
 
   @doc """

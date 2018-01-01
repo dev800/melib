@@ -7,6 +7,7 @@ defmodule Melib.IdentifyTest do
 
   @fixture Path.join(__DIR__, "../fixtures/img/bender.jpg")
   @fixture_from_iphone Path.join(__DIR__, "../fixtures/img/from_iphone.jpg")
+  @fixture_text Path.join(__DIR__, "../fixtures/img/text.txt")
 
   describe "identify" do
     test "mime_type" do
@@ -64,6 +65,26 @@ defmodule Melib.IdentifyTest do
       }
     end
 
+    test "identify with text" do
+      attachment = Identify.identify(@fixture_text)
+
+      assert %Melib.Attachment{
+        dirty: %{},
+        ext: ".txt",
+        file: nil,
+        filename: "text.txt",
+        md5: nil,
+        mime_type: "text/plain",
+        operations: [],
+        path: _path,
+        postfix: "txt",
+        format: "txt",
+        sha256: nil,
+        sha512: nil,
+        size: 12
+      } = attachment
+    end
+
     test "identify" do
       image = Identify.identify(@fixture)
 
@@ -73,14 +94,14 @@ defmodule Melib.IdentifyTest do
         ext: ".jpg",
         file: nil,
         filename: "bender.jpg",
-        format: "jpeg",
         frame_count: 1,
         height: 292,
         md5: nil,
         mime_type: "image/jpeg",
         operations: [],
         path: _path,
-        postfix: ".jpeg",
+        postfix: "jpg",
+        format: "jpg",
         sha256: nil,
         sha512: nil,
         size: 23465,
