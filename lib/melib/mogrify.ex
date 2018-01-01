@@ -62,6 +62,7 @@ defmodule Melib.Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
+    Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
     Melib.system_cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
     if image.operations[:watermark] do
       Melib.system_cmd("composite", arguments_for_watermark(image, output_path), stderr_to_stdout: true)
@@ -82,6 +83,7 @@ defmodule Melib.Mogrify do
   """
   def create(image, opts \\ []) do
     output_path = output_path_for(image, opts)
+    Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
     Melib.system_cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
     if image.operations[:watermark] do
       Melib.system_cmd("composite", arguments_for_watermark(image, output_path), stderr_to_stdout: true)
