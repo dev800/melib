@@ -11,12 +11,10 @@ defmodule Melib.Exif do
   @app1_marker 0xffe1
 
   def exif_from_jpeg_file(name) when is_binary(name) do
-    {:ok, buffer} = File.open(name,
-                              [:read],
-                              fn (file) ->
-                                IO.binread(file, @max_exif_len)
-                              end)
-    exif_from_jpeg_buffer(buffer)
+    case File.open(name, [:read], fn (file) -> IO.binread(file, @max_exif_len) end) do
+      {:ok, buffer} -> exif_from_jpeg_buffer(buffer)
+      {:error, reason} -> {:error, reason}
+    end
   end
 
   def exif_from_jpeg_file!(name) when is_binary(name) do
