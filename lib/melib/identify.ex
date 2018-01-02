@@ -116,9 +116,27 @@ defmodule Melib.Identify do
     |> Map.put(:animated, animated)
   end
 
+  def put_sizes(media), do: put_sizes(media, false)
+  def put_sizes(%Image{} = image, force) do
+    if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
+      %{size: size, height: height, width: width} = get_sizes(image, :image)
+      %{image | size: size, height: height, width: width}
+    else
+      image
+    end
+  end
+  def put_sizes(%Attachment{} = attachment, force) do
+    if is_nil(attachment.size) or force do
+      %{size: size} = get_sizes(attachment, :attachment)
+      %{attachment | size: size}
+    else
+      attachment
+    end
+  end
+
   def parse_verbose(data, file_path, type), do: parse_verbose(data, file_path, type, [])
   def parse_verbose(data, file_path, :attachment, opts) do
-    %{size: size} = File.stat! file_path
+    %{size: size} = get_sizes(file_path, :attachment)
     filename = file_path |> Path.basename
 
     attachment =
@@ -141,20 +159,7 @@ defmodule Melib.Identify do
     attachment
   end
   def parse_verbose(data, file_path, :image, opts) do
-
-    %{width: width, height: height} =
-      case Melib.system_cmd("identify", ["-format", "%m:%w:%h", file_path <> "[0]"], stderr_to_stdout: true) do
-        {rows_text, 0} ->
-          info = rows_text |> String.split(":") |> Enum.map(fn(i) -> String.trim(i) end)
-          width = info |> Enum.at(1) |> String.to_integer
-          height = info |> Enum.at(2) |> String.to_integer
-
-          %{width: width, height: height}
-        {error_message, 1} ->
-          raise Melib.VerboseError, message: "#{__MODULE__}.verbose -> #{error_message}"
-      end
-
-    %{size: size} = File.stat! file_path
+    %{width: width, height: height, size: size} = get_sizes(file_path, :image)
     filename = file_path |> Path.basename
 
     image =
@@ -179,6 +184,25 @@ defmodule Melib.Identify do
     image = if opts[:sha512], do: put_sha512(image), else: image
 
     image
+  end
+
+  def get_sizes(file_path, :image) do
+    %{width: width, height: height} =
+      case Melib.system_cmd("identify", ["-format", "%m:%w:%h", file_path <> "[0]"], stderr_to_stdout: true) do
+        {rows_text, 0} ->
+          info = rows_text |> String.split(":") |> Enum.map(fn(i) -> String.trim(i) end)
+          width = info |> Enum.at(1) |> String.to_integer
+          height = info |> Enum.at(2) |> String.to_integer
+
+          %{width: width, height: height}
+        {error_message, 1} ->
+          raise Melib.VerboseError, message: "#{__MODULE__}.verbose -> #{error_message}"
+      end
+
+    file_path |> get_sizes(:attachment) |> Map.merge(%{width: width, height: height})
+  end
+  def get_sizes(file_path, :attachment) do
+    file_path |> File.stat! |> Map.take([:size])
   end
 
 end
