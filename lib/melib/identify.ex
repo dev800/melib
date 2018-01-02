@@ -119,7 +119,7 @@ defmodule Melib.Identify do
   def put_sizes(media), do: put_sizes(media, false)
   def put_sizes(%Image{} = image, force) do
     if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
-      %{size: size, height: height, width: width} = get_sizes(image, :image)
+      %{size: size, height: height, width: width} = get_sizes(image.path, :image)
       %{image | size: size, height: height, width: width}
     else
       image
@@ -127,7 +127,7 @@ defmodule Melib.Identify do
   end
   def put_sizes(%Attachment{} = attachment, force) do
     if is_nil(attachment.size) or force do
-      %{size: size} = get_sizes(attachment, :attachment)
+      %{size: size} = get_sizes(attachment.path, :attachment)
       %{attachment | size: size}
     else
       attachment
