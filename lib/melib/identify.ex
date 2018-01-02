@@ -55,7 +55,11 @@ defmodule Melib.Identify do
     if image.md5 do
       image
     else
-      image |> Map.put(:md5, Melib.md5(image.file))
+      md5_hash = Melib.md5_hash(image.file)
+
+      image
+      |> Map.put(:md5_hash, md5_hash)
+      |> Map.put(:md5, md5_hash |> Base.encode16(case: :lower))
     end
   end
 
@@ -67,6 +71,11 @@ defmodule Melib.Identify do
       image
     else
       image |> Map.put(:sha256, Melib.sha256(image.file))
+      sha256_hash = Melib.sha256_hash(image.file)
+
+      image
+      |> Map.put(:sha256_hash, sha256_hash)
+      |> Map.put(:sha256, sha256_hash |> Base.encode16(case: :lower))
     end
   end
 
@@ -78,6 +87,11 @@ defmodule Melib.Identify do
       image
     else
       image |> Map.put(:sha512, Melib.sha512(image.file))
+      sha512_hash = Melib.sha512_hash(image.file)
+
+      image
+      |> Map.put(:sha512_hash, sha512_hash)
+      |> Map.put(:sha512, sha512_hash |> Base.encode16(case: :lower))
     end
   end
 

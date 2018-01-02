@@ -46,16 +46,19 @@ defmodule Melib do
     args
   end
 
+  def md5_hash(string), do: :crypto.hash(:md5, "#{string}")
   def md5(string) do
-    :crypto.hash(:md5, "#{string}") |> Base.encode16(case: :lower)
+    string |> md5_hash |> Base.encode16(case: :lower)
   end
 
+  def sha256_hash(string), do: :crypto.hash(:sha256, "#{string}")
   def sha256(string) do
-    :crypto.hash(:sha256, "#{string}") |> Base.encode16(case: :lower)
+    string |> sha256_hash |> Base.encode16(case: :lower)
   end
 
+  def sha512_hash(string), do: :crypto.hash(:sha512, "#{string}")
   def sha512(string) do
-    :crypto.hash(:sha512, "#{string}") |> Base.encode16(case: :lower)
+    string |> sha512_hash |> Base.encode16(case: :lower)
   end
 
 end
