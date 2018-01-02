@@ -369,29 +369,40 @@ defmodule Melib.Mogrify do
 
   @doc """
   opts:
-  * 
+  * gravity
+  * geometry
+  * min_height
+  * min_width
   """
   def watermark(image, watermark, opts \\ []) do
     operations = image.operations
-    watermark_opts = []
 
-    watermark_opts =
-      if Keyword.has_key?(operations, :gravity) do
-        watermark_opts
-      else
-        watermark_opts ++ [gravity: opts |> Keyword.get(:gravity, "SouthEast")]
-      end
+    height_valid = (!opts[:min_height] or !image.height) and image.height >= opts[:min_height]
+    width_valid = (!opts[:min_width] or !image.width) and image.width >= opts[:min_width]
 
-    watermark_opts =
-      if Keyword.has_key?(operations, :geometry) do
-        watermark_opts
-      else
-        watermark_opts ++ [geometry: opts |> Keyword.get(:geometry, "+0+0")]
-      end
+    if height_valid && width_valid do
+      watermark_opts = []
 
-    watermark_opts = watermark_opts ++ ["#{watermark}": :original]
+      watermark_opts =
+        if Keyword.has_key?(operations, :gravity) do
+          watermark_opts
+        else
+          watermark_opts ++ [gravity: opts |> Keyword.get(:gravity, "SouthEast")]
+        end
 
-    %{image | operations: operations ++ [watermark: watermark_opts]}
+      watermark_opts =
+        if Keyword.has_key?(operations, :geometry) do
+          watermark_opts
+        else
+          watermark_opts ++ [geometry: opts |> Keyword.get(:geometry, "+0+0")]
+        end
+
+      watermark_opts = watermark_opts ++ ["#{watermark}": :original]
+
+      %{image | operations: operations ++ [watermark: watermark_opts]}
+    else
+      image
+    end
   end
 
   @doc """

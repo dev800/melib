@@ -78,6 +78,7 @@ defmodule Melib.MogrifyTest do
     test "watermark and resize and text" do
       @fixture_meijing
       |> Mogrify.open
+      |> Mogrify.verbose
       |> Mogrify.resize("520>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
       |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)

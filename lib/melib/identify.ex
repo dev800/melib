@@ -2,27 +2,6 @@ defmodule Melib.Identify do
   alias Melib.Image
   alias Melib.Attachment
 
-  def verbose(file_path, type), do: verbose(file_path, type, [])
-  def verbose(file_path, :attachment, opts) do
-    parse_verbose(%{}, file_path, :attachment, opts)
-  end
-  def verbose(file_path, :image, _opts) do
-    case Melib.system_cmd("identify", ["-format", "%m:%w:%h", file_path <> "[0]"], stderr_to_stdout: true) do
-      {rows_text, 0} ->
-        data = rows_text |> String.split(":") |> Enum.map(fn(i) -> String.trim(i) end)
-        width = data |> Enum.at(1) |> String.to_integer
-        height = data |> Enum.at(2) |> String.to_integer
-
-        %{
-          width: width,
-          height: height
-        }
-
-      {error_message, 1} ->
-        raise Melib.VerboseError, message: "#{__MODULE__}.verbose -> #{error_message}"
-    end
-  end
-
   def mime_type(file_path), do: mime_type(file_path, [])
   def mime_type(%Image{path: file_path}, opts) do
     mime_type(file_path, opts)
@@ -54,9 +33,7 @@ defmodule Melib.Identify do
 
     case data[:mime_type] do
       "image/" <> _format ->
-        data
-        |> Map.merge(verbose(file_path, :image, opts))
-        |> parse_verbose(file_path, :image, opts)
+        data |> parse_verbose(file_path, :image, opts)
       _ ->
         data |> parse_verbose(file_path, :attachment, opts)
     end
@@ -164,10 +141,19 @@ defmodule Melib.Identify do
     attachment
   end
   def parse_verbose(data, file_path, :image, opts) do
-    %{
-      width: width,
-      height: height
-    } = data
+
+    %{width: width, height: height} =
+      case Melib.system_cmd("identify", ["-format", "%m:%w:%h", file_path <> "[0]"], stderr_to_stdout: true) do
+        {rows_text, 0} ->
+          info = rows_text |> String.split(":") |> Enum.map(fn(i) -> String.trim(i) end)
+          width = info |> Enum.at(1) |> String.to_integer
+          height = info |> Enum.at(2) |> String.to_integer
+
+          %{width: width, height: height}
+        {error_message, 1} ->
+          raise Melib.VerboseError, message: "#{__MODULE__}.verbose -> #{error_message}"
+      end
+
     %{size: size} = File.stat! file_path
     filename = file_path |> Path.basename
 
