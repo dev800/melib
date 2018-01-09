@@ -8,6 +8,7 @@ defmodule Melib.IdentifyTest do
   @fixture Path.join(__DIR__, "../fixtures/img/bender.jpg")
   @fixture_from_iphone Path.join(__DIR__, "../fixtures/img/from_iphone.jpg")
   @fixture_text Path.join(__DIR__, "../fixtures/img/text.txt")
+  @fixture_incorrect_sbit Path.join(__DIR__, "../fixtures/img/Incorrect_sBIT.jpg")
 
   describe "identify" do
     test "mime_type" do
@@ -86,7 +87,10 @@ defmodule Melib.IdentifyTest do
     end
 
     test "identify" do
-      image = Identify.identify(@fixture)
+      image =
+        @fixture
+        |> Identify.identify
+        |> Identify.put_wh
 
       assert %Melib.Image{
         animated: false,
@@ -115,6 +119,47 @@ defmodule Melib.IdentifyTest do
       assert image.md5 == "004c54015d933acf76fe2a541b7585be"
       assert image.sha256 == "3ddcfb07a3ebca9d54a89b0e25783b03e17a0324d8e508089c438ab692dafdb0"
       assert image.sha512 == "1532b9762728cdf65d04892e80196e6d65b1392806be632006b7f9bd79a0e3e25e6dd256194fcc554892b1e8a4d7da551ffa02d177134195954900e69d850e76"
+    end
+
+    test "identify Incorrect_sBIT" do
+      image =
+        @fixture_incorrect_sbit
+        |> Identify.identify
+        |> Identify.put_wh
+
+      assert %Melib.Image{
+        animated: false,
+        dirty: %{},
+        exif: %{},
+        ext: ".jpg",
+        file: nil,
+        filename: "Incorrect_sBIT.jpg",
+        format: "png",
+        frame_count: 1,
+        height: 645,
+        md5: nil,
+        md5_hash: nil,
+        mime_type: "image/png",
+        operations: [],
+        path: _path,
+        postfix: ".png",
+        sha256: nil,
+        sha256_hash: nil,
+        sha512: nil,
+        sha512_hash: nil,
+        size: 334064,
+        width: 452
+      } = image
+
+      image =
+        image
+        |> Identify.put_md5
+        |> Identify.put_sha512
+        |> Identify.put_sha256
+
+      assert image.md5 == "c1ccea2eb7885d0d422071876f9781a2"
+      assert image.sha256 == "f9edf120dd55c2bc141a9abdad081aec4cf7d06a6cd46278397d3880d7396a46"
+      assert image.sha512 == "af1b160749313eec776c24e4e99d96e9b5558c7dec412487a702182cb595d292b0312b40a07b4e834ecb30ede157491325e04327eb6bfdb9f2698db9a3e3178c"
     end
   end
 
