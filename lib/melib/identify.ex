@@ -10,21 +10,7 @@ defmodule Melib.Identify do
     mime_type(file_path, opts)
   end
   def mime_type(file_path, _opts) do
-    case Melib.system_cmd("file", ["--mime-type", "-b", file_path], stderr_to_stdout: true) do
-      {rows_text, 0} ->
-        rows_text = rows_text |> String.trim
-
-        cond do
-          String.starts_with?(rows_text, "cannot open") ->
-            raise Melib.MimeTypeError, message: "#{__MODULE__}.mime_type -> No such file or directory"
-          String.contains?(rows_text, " ") ->
-            raise Melib.MimeTypeError, message: "#{__MODULE__}.mime_type -> #{rows_text}"
-          true ->
-            rows_text |> String.split(";") |> Enum.map(fn s -> String.trim(s) end) |> List.first
-        end
-      {error_message, 1} ->
-        raise Melib.MimeTypeError, message: "#{__MODULE__}.mime_type -> #{error_message}"
-    end
+    MIME.from_path(file_path)
   end
 
   def identify(file_path), do: identify(file_path, [])
@@ -131,6 +117,7 @@ defmodule Melib.Identify do
   end
 
   def put_width_and_height(media), do: put_width_and_height(media, false)
+  def put_width_and_height(nil, _force), do: nil
   def put_width_and_height(%Image{} = image, force) do
     if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
       %{height: height, width: width} = get_width_and_height(image.path, :image)
@@ -142,9 +129,6 @@ defmodule Melib.Identify do
   def put_width_and_height(%Attachment{} = attachment, _force) do
     attachment
   end
-
-  defdelegate put_wh(media), to: __MODULE__, as: :put_width_and_height
-  defdelegate put_wh(media, force), to: __MODULE__, as: :put_width_and_height
 
   def fix_sbit(%Image{path: path, postfix: postfix, format: "png"} = image) do
     tmp_path = System.tmp_dir |> Path.join(Melib.SecureRandom.hex <> postfix)
@@ -204,8 +188,8 @@ defmodule Melib.Identify do
     case Melib.system_cmd("identify", ["-format", "%m:%w:%h", file_path <> "[0]"], stderr_to_stdout: true) do
       {rows_text, 0} ->
         info = rows_text |> String.split(":") |> Enum.map(fn(i) -> String.trim(i) end)
-        width = info |> Enum.at(1) |> String.to_integer
-        height = info |> Enum.at(2) |> String.to_integer
+        width = info |> Enum.at(-2) |> String.to_integer
+        height = info |> Enum.at(-1) |> String.to_integer
 
         %{width: width, height: height}
       {error_message, 1} ->
