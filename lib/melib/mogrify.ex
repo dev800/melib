@@ -65,7 +65,7 @@ defmodule Melib.Mogrify do
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
     Melib.system_cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
     if image.operations[:watermark] do
-      Melib.system_cmd("composite", arguments_for_watermark(image, output_path), stderr_to_stdout: true)
+      Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
     end
     image_after_command(image, output_path)
   end
@@ -86,7 +86,7 @@ defmodule Melib.Mogrify do
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
     Melib.system_cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
     if image.operations[:watermark] do
-      Melib.system_cmd("composite", arguments_for_watermark(image, output_path), stderr_to_stdout: true)
+      Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
     end
     image_after_command(image, output_path)
   end
@@ -169,7 +169,7 @@ defmodule Melib.Mogrify do
     [append_gif_frame_to_path(image)] ++ arguments(image) ++ [path]
   end
 
-  defp arguments_for_watermark(image, path) do
+  defp arguments_for_watermark(image, path, _opts) do
     watermark_arguments(image) ++ [path, path]
   end
 
@@ -379,8 +379,9 @@ defmodule Melib.Mogrify do
 
     height_valid = !opts[:min_height] or !image.height or image.height >= opts[:min_height]
     width_valid = !opts[:min_width] or !image.width or image.width >= opts[:min_width]
+    skip = image.mime_type == "image/gif" and !!opts[:git_skip]
 
-    if height_valid && width_valid do
+    if height_valid && width_valid && !skip do
       watermark_opts = []
 
       watermark_opts =
