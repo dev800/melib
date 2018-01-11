@@ -38,6 +38,14 @@ defmodule Melib.MogrifyTest do
       |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180.jpg")
     end
 
+    test "gif watermark skip" do
+      @fixture_animated
+      |> Mogrify.open
+      |> Mogrify.resize("180>")
+      |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast", gif_skip: true)
+      |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180_skip_watermark.gif")
+    end
+
     test "resize" do
       @fixture_meijing
       |> Mogrify.open

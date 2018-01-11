@@ -379,7 +379,7 @@ defmodule Melib.Mogrify do
 
     height_valid = !opts[:min_height] or !image.height or image.height >= opts[:min_height]
     width_valid = !opts[:min_width] or !image.width or image.width >= opts[:min_width]
-    skip = image.mime_type == "image/gif" and !!opts[:git_skip]
+    skip = image.mime_type == "image/gif" and !!opts[:gif_skip]
 
     if height_valid && width_valid && !skip do
       watermark_opts = []
