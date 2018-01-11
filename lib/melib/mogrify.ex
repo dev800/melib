@@ -32,6 +32,7 @@ defmodule Melib.Mogrify do
   * pointsize      # 设置字体大小，单位为像素
   """
 
+  alias Melib.Identify
   alias Melib.Compat
   alias Melib.Image
 
@@ -49,7 +50,7 @@ defmodule Melib.Mogrify do
       raise(File.Error)
     end
 
-    %Image{path: path} |> Melib.Identify.put_mime_type
+    %Image{path: path} |> Identify.put_mime_type
   end
 
   @doc """
@@ -375,8 +376,8 @@ defmodule Melib.Mogrify do
   * min_width
   """
   def watermark(image, watermark, opts \\ []) do
+    image = image |> Identify.put_width_and_height
     operations = image.operations
-
     height_valid = !opts[:min_height] or !image.height or image.height >= opts[:min_height]
     width_valid = !opts[:min_width] or !image.width or image.width >= opts[:min_width]
     skip = image.mime_type == "image/gif" and !!opts[:gif_skip]
