@@ -6,6 +6,7 @@ defmodule Melib.MogrifyTest do
 
   use ExUnit.Case, async: true
 
+  @gif_fixture Path.join(__DIR__, "../fixtures/img/bender_anim.gif")
   @fixture Path.join(__DIR__, "../fixtures/img/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "../fixtures/img/image with space in name/ben der.jpg")
   @fixture_animated Path.join(__DIR__, "../fixtures/img/bender_anim.gif")
@@ -249,6 +250,16 @@ defmodule Melib.MogrifyTest do
     test ".verbose frame_count" do
       assert %Image{frame_count: 1} = open(@fixture) |> verbose
       assert %Image{frame_count: 2} = open(@fixture_animated) |> verbose
+    end
+
+    test ".format for gif save" do
+      image = open(@gif_fixture) |> format("png") |> save |> verbose
+      assert %Image{postfix: ".png", ext: ".png", height: 292, width: 300} = image
+    end
+
+    test ".format for gif create" do
+      image = open(@gif_fixture) |> format("png") |> create |> verbose
+      assert %Image{postfix: ".png", ext: ".png", height: 292, width: 300} = image
     end
 
     test ".format" do

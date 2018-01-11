@@ -63,12 +63,37 @@ defmodule Melib.Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
+
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
-    Melib.system_cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
-    if image.operations[:watermark] do
-      Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
+
+    if File.exists?(image.path) do
+      tmp_path = generate_temp_path()
+
+      Melib.system_cmd "mogrify", arguments_for_saving(image, tmp_path), stderr_to_stdout: true
+
+      if image.operations[:watermark] do
+        Melib.system_cmd("composite", arguments_for_watermark(image, tmp_path, opts), stderr_to_stdout: true)
+      end
+
+      File.cp!(tmp_path, output_path)
+      File.rm!(tmp_path)
+    else
+      Melib.system_cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
+
+      if image.operations[:watermark] do
+        Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
+      end
     end
+
     image_after_command(image, output_path)
+  end
+
+  defp hex_random(n) do
+    n |> :crypto.strong_rand_bytes |> Base.encode16(case: :lower)
+  end
+
+  defp generate_temp_path do
+    System.tmp_dir |> Path.join("melib-" <> hex_random(16))
   end
 
   @doc """
@@ -84,11 +109,28 @@ defmodule Melib.Mogrify do
   """
   def create(image, opts \\ []) do
     output_path = output_path_for(image, opts)
+
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
-    Melib.system_cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
-    if image.operations[:watermark] do
-      Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
+
+    if File.exists?(image.path) do
+      tmp_path = generate_temp_path()
+
+      Melib.system_cmd("convert", arguments_for_creating(image, tmp_path), stderr_to_stdout: true)
+
+      if image.operations[:watermark] do
+        Melib.system_cmd("composite", arguments_for_watermark(image, tmp_path, opts), stderr_to_stdout: true)
+      end
+
+      File.cp!(tmp_path, output_path)
+      File.rm!(tmp_path)
+    else
+      Melib.system_cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
+
+      if image.operations[:watermark] do
+        Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
+      end
     end
+
     image_after_command(image, output_path)
   end
 
