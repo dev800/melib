@@ -1,6 +1,6 @@
 defmodule Melib.CssSprite.Generator do
 
-  @default_gap 10
+  @default_gap 5
 
   def generate(opts \\ []) do
     img_src_dir = opts |> Keyword.get(:img_src_dir)
@@ -179,7 +179,7 @@ defmodule Melib.CssSprite.Generator do
     Enum.reduce(images, start_value, fn image, %{images: images, max_height: max_height, max_width: max_width} ->
       dirty = image.dirty
 
-      x = gap
+      x = 0
       y = max_height + gap
 
       dirty =
