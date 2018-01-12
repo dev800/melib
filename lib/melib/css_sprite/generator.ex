@@ -116,7 +116,7 @@ defmodule Melib.CssSprite.Generator do
 
 .#{css_class_shared} {
   background-repeat: no-repeat;
-  background-size: #{max_width}px #{max_height}px;
+  background-size: #{(max_width / zoom) |> to_i}px #{(max_height / zoom) |> to_i}px;
 }
         """
       )
@@ -194,8 +194,8 @@ background-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoo
 
       image = image |> Map.put(:dirty, dirty)
 
-      max_height = image.height + gap + max_height
       max_width = if image.width > max_width, do: image.width, else: max_width
+      max_height = image.height + max_height + gap
       images = images |> List.insert_at(-1, image)
 
       %{images: images, max_height: max_height, max_width: max_width}
