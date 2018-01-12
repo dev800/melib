@@ -200,8 +200,6 @@ defmodule Melib.Identify do
     %{}
   end
 
-  defdelegate get_wh(media, type), to: __MODULE__, as: :get_width_and_height
-
   def get_size(file_path) do
     file_path |> File.stat! |> Map.get(:size)
   end
