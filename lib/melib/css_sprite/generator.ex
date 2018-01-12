@@ -127,10 +127,10 @@ defmodule Melib.CssSprite.Generator do
         |> List.insert_at(
         -1,
         """
-.#{css_class_prefix}#{image.dirty.name} {
-  background-position: #{image.dirty.x} -#{image.dirty.y};
-  height: #{image.height};
-  width: #{image.width};
+.#{css_class_prefix}#{image.dirty.name |> String.downcase} {
+  background-position: #{image.dirty.x}px -#{image.dirty.y}px;
+  height: #{image.height}px;
+  width: #{image.width}px;
 }
         """
         )
@@ -191,7 +191,7 @@ defmodule Melib.CssSprite.Generator do
       image = image |> Map.put(:dirty, dirty)
 
       max_height = image.height + gap + max_height
-      max_width = (if image.width > max_width, do: image.width, else: max_width) + gap
+      max_width = if image.width > max_width, do: image.width, else: max_width
       images = images |> List.insert_at(-1, image)
 
       %{images: images, max_height: max_height, max_width: max_width}

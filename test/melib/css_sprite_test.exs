@@ -17,7 +17,8 @@ defmodule Melib.CssSpriteTest do
       css_to_path: @x1_css_to,
       scope_name: "icon",
       css_class_shared: "icon",
-      css_class_prefix: "icon-nm-"
+      css_class_prefix: "icon-nm-",
+      zoom: 1
     )
   end
 
@@ -28,7 +29,8 @@ defmodule Melib.CssSpriteTest do
       css_to_path: @x2_css_to,
       scope_name: "icon",
       css_class_shared: "icon",
-      css_class_prefix: "icon-nm-"
+      css_class_prefix: "icon-nm-",
+      zoom: 2
     )
   end
 
