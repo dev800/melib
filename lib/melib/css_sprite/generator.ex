@@ -128,9 +128,9 @@ defmodule Melib.CssSprite.Generator do
         -1,
         """
 .#{css_class_prefix}#{image.dirty.name |> String.downcase} {
-background-position: #{(image.dirty.x / zoom) |> Melib.Util.to_i}px -#{(image.dirty.y / zoom) |> Melib.Util.to_i}px;
-  height: #{(image.height / zoom) |> Melib.Util.to_i}px;
-  width: #{(image.width / zoom) |> Melib.Util.to_i}px;
+background-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoom) |> to_i}px;
+  height: #{(image.height / zoom) |> to_i}px;
+  width: #{(image.width / zoom) |> to_i}px;
 }
         """
         )
@@ -141,6 +141,10 @@ background-position: #{(image.dirty.x / zoom) |> Melib.Util.to_i}px -#{(image.di
     Melib.log_info(["success write css file to: #{css_to_path}"])
 
     images
+  end
+
+  defp to_i(value) do
+    Melib.Util.to_i(value)
   end
 
   defp blank?(str) do
@@ -180,7 +184,7 @@ background-position: #{(image.dirty.x / zoom) |> Melib.Util.to_i}px -#{(image.di
       dirty = image.dirty
 
       x = 0
-      y = max_height + gap
+      y = max_height
 
       dirty =
         dirty
