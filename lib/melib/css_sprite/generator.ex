@@ -7,7 +7,8 @@ defmodule Melib.CssSprite.Generator do
     img_to_path = opts |> Keyword.get(:img_to_path)
     css_to_path = opts |> Keyword.get(:css_to_path)
 
-    scope_name = opts |> Keyword.get(:scope_name, "icon")
+    zoom = opts |> Keyword.get(:zoom, 1)
+
     css_class_shared = opts |> Keyword.get(:css_class_shared, "icon-nm")
     css_class_prefix = opts |> Keyword.get(:css_class_prefix, "icon-nm-")
 
@@ -17,11 +18,10 @@ defmodule Melib.CssSprite.Generator do
       blank?(css_to_path) -> Melib.log_error(":css_to_path 不能为空")
       true ->
         perform_generate(%{
-          zoom: Keyword.get(opts, :zoom, 1),
+          zoom: zoom,
           img_src_dir: img_src_dir,
           img_to_path: img_to_path,
           css_to_path: css_to_path,
-          scope_name: scope_name,
           css_class_shared: css_class_shared,
           css_class_prefix: css_class_prefix
         })
@@ -34,7 +34,6 @@ defmodule Melib.CssSprite.Generator do
       img_src_dir: img_src_dir,
       img_to_path: img_to_path,
       css_to_path: css_to_path,
-      scope_name: scope_name,
       css_class_shared: css_class_shared,
       css_class_prefix: css_class_prefix
     } = opts
@@ -47,16 +46,17 @@ defmodule Melib.CssSprite.Generator do
     images
     |> write_css(
       css_to_path: css_to_path,
-      scope_name: scope_name,
       css_class_shared: css_class_shared,
       css_class_prefix: css_class_prefix,
       max_height: max_height,
+      zoom: zoom,
       max_width: max_width
     )
     |> write_image(
       img_to_path: img_to_path,
       max_height: max_height,
-      max_width: max_width
+      max_width: max_width,
+      zoom: zoom
     )
   end
 
@@ -96,11 +96,11 @@ defmodule Melib.CssSprite.Generator do
 
   defp write_css(images, opts) do
     css_to_path = opts |> Keyword.get(:css_to_path)
-    # scope_name = opts |> Keyword.get(:scope_name)
     css_class_shared = opts |> Keyword.get(:css_class_shared)
     css_class_prefix = opts |> Keyword.get(:css_class_prefix)
     max_height = opts |> Keyword.get(:max_height)
     max_width = opts |> Keyword.get(:max_width)
+    zoom = opts |> Keyword.get(:zoom)
 
     css_contents = []
     css_contents =
@@ -128,9 +128,9 @@ defmodule Melib.CssSprite.Generator do
         -1,
         """
 .#{css_class_prefix}#{image.dirty.name |> String.downcase} {
-  background-position: #{image.dirty.x}px -#{image.dirty.y}px;
-  height: #{image.height}px;
-  width: #{image.width}px;
+background-position: #{(image.dirty.x / zoom) |> Melib.Util.to_i}px -#{(image.dirty.y / zoom) |> Melib.Util.to_i}px;
+  height: #{(image.height / zoom) |> Melib.Util.to_i}px;
+  width: #{(image.width / zoom) |> Melib.Util.to_i}px;
 }
         """
         )
