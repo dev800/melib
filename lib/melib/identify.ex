@@ -10,7 +10,21 @@ defmodule Melib.Identify do
     mime_type(file_path, opts)
   end
   def mime_type(file_path, _opts) do
-    MIME.from_path(file_path)
+    case Melib.system_cmd("file", ["--mime-type", "-b", file_path], stderr_to_stdout: true) do
+      {rows_text, 0} ->
+        rows_text = rows_text |> String.trim
+
+        cond do
+          String.starts_with?(rows_text, "cannot open") ->
+            raise Melib.MimeTypeError, message: "#{__MODULE__}.mime_type -> No such file or directory"
+          String.contains?(rows_text, " ") ->
+            raise Melib.MimeTypeError, message: "#{__MODULE__}.mime_type -> #{rows_text}"
+          true ->
+            rows_text |> String.split(";") |> Enum.map(fn s -> String.trim(s) end) |> List.first
+        end
+      {error_message, 1} ->
+        raise Melib.MimeTypeError, message: "#{__MODULE__}.mime_type -> #{error_message}"
+    end
   end
 
   def identify(file_path), do: identify(file_path, [])

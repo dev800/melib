@@ -167,15 +167,15 @@ defmodule Melib.IdentifyTest do
         ext: ".jpg",
         file: nil,
         filename: "Incorrect_sBIT.jpg",
-        format: "jpg",
+        format: "png",
         frame_count: 1,
         height: 645,
         md5: nil,
         md5_hash: nil,
-        mime_type: "image/jpeg",
+        mime_type: "image/png",
         operations: [],
         path: _path,
-        postfix: ".jpg",
+        postfix: ".png",
         sha256: nil,
         sha256_hash: nil,
         sha512: nil,
@@ -190,9 +190,9 @@ defmodule Melib.IdentifyTest do
         |> Identify.put_sha512
         |> Identify.put_sha256
 
-      assert image.md5 == "33a2c0da51b45c9327c39f75c0523b5a"
-      assert image.sha256 == "b072a5d337ce4563c930f413418ee6ec90aefadf039ac61728b2e1b8d7a2f42b"
-      assert image.sha512 == "454ab4412cb4b7bbd7cf23c785b1a725373aa2800f9f4e69486b8486925a6721b3b8d1eaae8bec5f0c004858955d515939d9db67f5070c8bf4a56e574cf2e811"
+      assert image.md5 == "c1ccea2eb7885d0d422071876f9781a2"
+      assert image.sha256 == "f9edf120dd55c2bc141a9abdad081aec4cf7d06a6cd46278397d3880d7396a46"
+      assert image.sha512 == "af1b160749313eec776c24e4e99d96e9b5558c7dec412487a702182cb595d292b0312b40a07b4e834ecb30ede157491325e04327eb6bfdb9f2698db9a3e3178c"
     end
   end
 
