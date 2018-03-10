@@ -70,7 +70,7 @@ defmodule Melib.CssSprite.Generator do
     max_height = opts |> Keyword.get(:max_height)
     max_width = opts |> Keyword.get(:max_width)
 
-    img_to_path |> Path.dirname |> File.mkdir_p
+    img_to_path |> Path.dirname |> File.mkdir_p!
 
     Melib.system_cmd(
       "convert",
@@ -110,7 +110,7 @@ defmodule Melib.CssSprite.Generator do
     max_width = opts |> Keyword.get(:max_width)
     zoom = opts |> Keyword.get(:zoom)
 
-    css_to_path |> Path.dirname |> File.mkdir_p
+    css_to_path |> Path.dirname |> File.mkdir_p!
 
     css_contents = []
     css_contents =
@@ -144,7 +144,6 @@ defmodule Melib.CssSprite.Generator do
         )
       end)
 
-    css_to_path |> Path.dirname |> File.mkdir_p!
     File.write!(css_to_path, Enum.join(css_contents, "\n"))
     Melib.log_info(["success write css file to: #{css_to_path}"])
 
