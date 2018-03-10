@@ -6,6 +6,8 @@ defmodule Melib.CssSprite.Generator do
     img_src_dir = opts |> Keyword.get(:img_src_dir)
     img_to_path = opts |> Keyword.get(:img_to_path)
     css_to_path = opts |> Keyword.get(:css_to_path)
+    css_img_url = opts |> Keyword.get(:css_img_url)
+
 
     zoom = opts |> Keyword.get(:zoom, 1)
 
@@ -21,6 +23,7 @@ defmodule Melib.CssSprite.Generator do
           zoom: zoom,
           img_src_dir: img_src_dir,
           img_to_path: img_to_path,
+          css_img_url: css_img_url,
           css_to_path: css_to_path,
           css_class_shared: css_class_shared,
           css_class_prefix: css_class_prefix
@@ -33,6 +36,7 @@ defmodule Melib.CssSprite.Generator do
       zoom: zoom,
       img_src_dir: img_src_dir,
       img_to_path: img_to_path,
+      css_img_url: css_img_url,
       css_to_path: css_to_path,
       css_class_shared: css_class_shared,
       css_class_prefix: css_class_prefix
@@ -48,6 +52,7 @@ defmodule Melib.CssSprite.Generator do
       css_to_path: css_to_path,
       css_class_shared: css_class_shared,
       css_class_prefix: css_class_prefix,
+      css_img_url: css_img_url,
       max_height: max_height,
       zoom: zoom,
       max_width: max_width
@@ -64,6 +69,8 @@ defmodule Melib.CssSprite.Generator do
     img_to_path = opts |> Keyword.get(:img_to_path)
     max_height = opts |> Keyword.get(:max_height)
     max_width = opts |> Keyword.get(:max_width)
+
+    img_to_path |> Path.dirname |> File.mkdir_p
 
     Melib.system_cmd(
       "convert",
@@ -98,9 +105,12 @@ defmodule Melib.CssSprite.Generator do
     css_to_path = opts |> Keyword.get(:css_to_path)
     css_class_shared = opts |> Keyword.get(:css_class_shared)
     css_class_prefix = opts |> Keyword.get(:css_class_prefix)
+    css_img_url = opts |> Keyword.get(:css_img_url)
     max_height = opts |> Keyword.get(:max_height)
     max_width = opts |> Keyword.get(:max_width)
     zoom = opts |> Keyword.get(:zoom)
+
+    css_to_path |> Path.dirname |> File.mkdir_p
 
     css_contents = []
     css_contents =
@@ -108,15 +118,13 @@ defmodule Melib.CssSprite.Generator do
         css_contents,
         -1,
         """
-/* 将下面3行，放入页面中(仅供参考)
- .#{css_class_shared} {
-   background-image: url(<%= image_path("...") %>);
- }
-*/
+.#{css_class_shared} {
+\s\sbackground-image: url(#{css_img_url});
+}
 
 .#{css_class_shared} {
-  background-repeat: no-repeat;
-  background-size: #{(max_width / zoom) |> to_i}px #{(max_height / zoom) |> to_i}px;
+\s\sbackground-repeat: no-repeat;
+\s\sbackground-size: #{(max_width / zoom) |> to_i}px #{(max_height / zoom) |> to_i}px;
 }
         """
       )
@@ -128,9 +136,9 @@ defmodule Melib.CssSprite.Generator do
         -1,
         """
 .#{css_class_prefix}#{image.dirty.name |> String.downcase} {
-background-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoom) |> to_i}px;
-  height: #{(image.height / zoom) |> to_i}px;
-  width: #{(image.width / zoom) |> to_i}px;
+\s\sbackground-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoom) |> to_i}px;
+\s\sheight: #{(image.height / zoom) |> to_i}px;
+\s\swidth: #{(image.width / zoom) |> to_i}px;
 }
         """
         )

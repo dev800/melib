@@ -14,6 +14,7 @@ defmodule Melib.CssSpriteTest do
     Melib.CssSprite.generate(
       img_src_dir: @x1_src,
       img_to_path: @x1_img_to,
+      css_img_url: "/css_sprite/x1.png",
       css_to_path: @x1_css_to,
       scope_name: "icon",
       css_class_shared: "icon",
@@ -26,6 +27,7 @@ defmodule Melib.CssSpriteTest do
     Melib.CssSprite.generate(
       img_src_dir: @x2_src,
       img_to_path: @x2_img_to,
+      css_img_url: "/css_sprite/x2.png",
       css_to_path: @x2_css_to,
       scope_name: "icon",
       css_class_shared: "icon",
