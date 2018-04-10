@@ -190,9 +190,9 @@ defmodule Melib.IdentifyTest do
         |> Identify.put_sha512
         |> Identify.put_sha256
 
-      assert image.md5 == "c1ccea2eb7885d0d422071876f9781a2"
-      assert image.sha256 == "f9edf120dd55c2bc141a9abdad081aec4cf7d06a6cd46278397d3880d7396a46"
-      assert image.sha512 == "af1b160749313eec776c24e4e99d96e9b5558c7dec412487a702182cb595d292b0312b40a07b4e834ecb30ede157491325e04327eb6bfdb9f2698db9a3e3178c"
+      assert image.md5 == "f5fd6151f0b8a8d70387843689a795c4"
+      assert image.sha256 == "d7c3ba9d4f4668ff9b15a83127b69bd44478c6022c7c5a47047115e9b80bbb60"
+      assert image.sha512 == "adf4b1806c8733d18cfc8001a6c8c7b9797db20cf0b49204737a784c490e702e518ce55cf01d6795909e263d04efc6050917134a63403465f74a6bda46152a5b"
     end
   end
 

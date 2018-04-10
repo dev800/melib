@@ -135,11 +135,11 @@ defmodule Melib.CssSprite.Generator do
         |> List.insert_at(
         -1,
         """
-.#{css_class_prefix}#{image.dirty.name |> String.downcase} {
-\s\sbackground-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoom) |> to_i}px;
-\s\sheight: #{(image.height / zoom) |> to_i}px;
-\s\swidth: #{(image.width / zoom) |> to_i}px;
-}
+        .#{css_class_prefix}#{image.dirty.name |> String.downcase} {
+        \s\sbackground-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoom) |> to_i}px;
+        \s\sheight: #{(image.height / zoom) |> to_i}px;
+        \s\swidth: #{(image.width / zoom) |> to_i}px;
+        }
         """
         )
       end)
