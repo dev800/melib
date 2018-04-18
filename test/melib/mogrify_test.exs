@@ -14,9 +14,28 @@ defmodule Melib.MogrifyTest do
   @temp_test_directory Path.join(__DIR__, "../tmp/mogrify test folder") |> Path.expand
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
+  @fixture_incorrect_sbit Path.join(__DIR__, "../fixtures/img/Incorrect_sBIT.jpg")
+
   @fixture_meijing Path.join(__DIR__, "../fixtures/img/meijing.png")
   @fixture_watermark Path.join(__DIR__, "../fixtures/img/watermark.png")
   @fixture_tmp_folder Path.join(__DIR__, "../tmp/mogrify") |> Path.expand
+
+  describe "Incorrect_sBIT Testing" do
+    setup do
+      File.mkdir_p!(@fixture_tmp_folder)
+      %{}
+    end
+
+    test "watermark and resize and text" do
+      @fixture_incorrect_sbit
+      |> Mogrify.open
+      |> Mogrify.verbose
+      |> Mogrify.resize("520>")
+      |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
+      |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)
+      |> Mogrify.create(path: @fixture_tmp_folder <> "/Incorrect_sBIT.with_watermark_text_520.jpg")
+    end
+  end
 
   describe "Basic Testing For" do
     setup do

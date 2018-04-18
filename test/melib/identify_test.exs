@@ -13,7 +13,7 @@ defmodule Melib.IdentifyTest do
 
   describe "identify" do
     test "mime_type" do
-      mime_type = 
+      mime_type =
         @fixture
         |> Mogrify.open
         |> Identify.mime_type
@@ -190,9 +190,9 @@ defmodule Melib.IdentifyTest do
         |> Identify.put_sha512
         |> Identify.put_sha256
 
-      assert image.md5 == "f5fd6151f0b8a8d70387843689a795c4"
-      assert image.sha256 == "d7c3ba9d4f4668ff9b15a83127b69bd44478c6022c7c5a47047115e9b80bbb60"
-      assert image.sha512 == "adf4b1806c8733d18cfc8001a6c8c7b9797db20cf0b49204737a784c490e702e518ce55cf01d6795909e263d04efc6050917134a63403465f74a6bda46152a5b"
+      assert image.md5 == "33a2c0da51b45c9327c39f75c0523b5a"
+      assert image.sha256 == "b072a5d337ce4563c930f413418ee6ec90aefadf039ac61728b2e1b8d7a2f42b"
+      assert image.sha512 == "454ab4412cb4b7bbd7cf23c785b1a725373aa2800f9f4e69486b8486925a6721b3b8d1eaae8bec5f0c004858955d515939d9db67f5070c8bf4a56e574cf2e811"
     end
   end
 
