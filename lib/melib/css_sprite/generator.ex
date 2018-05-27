@@ -1,5 +1,4 @@
 defmodule Melib.CssSprite.Generator do
-
   @default_gap 5
 
   def generate(opts \\ []) do
@@ -8,16 +7,21 @@ defmodule Melib.CssSprite.Generator do
     css_to_path = opts |> Keyword.get(:css_to_path)
     css_img_url = opts |> Keyword.get(:css_img_url)
 
-
     zoom = opts |> Keyword.get(:zoom, 1)
 
     css_class_shared = opts |> Keyword.get(:css_class_shared, "icon-nm")
     css_class_prefix = opts |> Keyword.get(:css_class_prefix, "icon-nm-")
 
     cond do
-      blank?(img_src_dir) -> Melib.log_error(":img_src_dir 不能为空")
-      blank?(img_to_path) -> Melib.log_error(":img_to_path 不能为空")
-      blank?(css_to_path) -> Melib.log_error(":css_to_path 不能为空")
+      blank?(img_src_dir) ->
+        Melib.log_error(":img_src_dir 不能为空")
+
+      blank?(img_to_path) ->
+        Melib.log_error(":img_to_path 不能为空")
+
+      blank?(css_to_path) ->
+        Melib.log_error(":css_to_path 不能为空")
+
       true ->
         perform_generate(%{
           zoom: zoom,
@@ -70,30 +74,24 @@ defmodule Melib.CssSprite.Generator do
     max_height = opts |> Keyword.get(:max_height)
     max_width = opts |> Keyword.get(:max_width)
 
-    img_to_path |> Path.dirname |> File.mkdir_p!
+    img_to_path |> Path.dirname() |> File.mkdir_p!()
 
-    Melib.system_cmd(
-      "convert",
-      [
-        "-size",
-        "#{max_width}x#{max_height}",
-        "xc:none",
-        img_to_path
-      ]
-    )
+    Melib.system_cmd("convert", [
+      "-size",
+      "#{max_width}x#{max_height}",
+      "xc:none",
+      img_to_path
+    ])
 
     images
     |> Enum.each(fn image ->
-      Melib.system_cmd(
-        "composite",
-        [
-          "-geometry",
-          "+#{image.dirty.x}+#{image.dirty.y}",
-          image.path,
-          img_to_path,
-          img_to_path
-        ]
-      )
+      Melib.system_cmd("composite", [
+        "-geometry",
+        "+#{image.dirty.x}+#{image.dirty.y}",
+        image.path,
+        img_to_path,
+        img_to_path
+      ])
     end)
 
     Melib.log_info(["success write img file to: #{img_to_path}"])
@@ -110,38 +108,34 @@ defmodule Melib.CssSprite.Generator do
     max_width = opts |> Keyword.get(:max_width)
     zoom = opts |> Keyword.get(:zoom)
 
-    css_to_path |> Path.dirname |> File.mkdir_p!
+    css_to_path |> Path.dirname() |> File.mkdir_p!()
 
     css_contents = []
-    css_contents =
-      List.insert_at(
-        css_contents,
-        -1,
-        """
-.#{css_class_shared} {
-\s\sbackground-image: url(#{css_img_url});
-}
 
-.#{css_class_shared} {
-\s\sbackground-repeat: no-repeat;
-\s\sbackground-size: #{(max_width / zoom) |> to_i}px #{(max_height / zoom) |> to_i}px;
-}
-        """
-      )
+    css_contents =
+      List.insert_at(css_contents, -1, """
+      .#{css_class_shared} {
+      \s\sbackground-image: url(#{css_img_url});
+      }
+
+      .#{css_class_shared} {
+      \s\sbackground-repeat: no-repeat;
+      \s\sbackground-size: #{(max_width / zoom) |> to_i}px #{(max_height / zoom) |> to_i}px;
+      }
+      """)
 
     css_contents =
       Enum.reduce(images, css_contents, fn image, css_contents ->
         css_contents
-        |> List.insert_at(
-        -1,
-        """
-        .#{css_class_prefix}#{image.dirty.name |> String.downcase} {
-        \s\sbackground-position: #{(image.dirty.x / zoom) |> to_i}px -#{(image.dirty.y / zoom) |> to_i}px;
+        |> List.insert_at(-1, """
+        .#{css_class_prefix}#{image.dirty.name |> String.downcase()} {
+        \s\sbackground-position: #{(image.dirty.x / zoom) |> to_i}px -#{
+          (image.dirty.y / zoom) |> to_i
+        }px;
         \s\sheight: #{(image.height / zoom) |> to_i}px;
         \s\swidth: #{(image.width / zoom) |> to_i}px;
         }
-        """
-        )
+        """)
       end)
 
     File.write!(css_to_path, Enum.join(css_contents, "\n"))
@@ -155,27 +149,28 @@ defmodule Melib.CssSprite.Generator do
   end
 
   defp blank?(str) do
-    ("#{str}" |> String.trim |> String.length) == 0
+    "#{str}" |> String.trim() |> String.length() == 0
   end
 
   defp file_image?(path) do
-    path |> MIME.from_path |> String.starts_with?("image/")
+    path |> MIME.from_path() |> String.starts_with?("image/")
   end
 
   defp read_images_from_dir(img_src_dir) do
     img_src_dir
-    |> File.ls!
-    |> Enum.sort
+    |> File.ls!()
+    |> Enum.sort()
     |> Enum.map(fn file_name ->
       file_path = img_src_dir |> Path.join(file_name)
 
       if not File.dir?(file_path) and file_image?(file_path) do
         case Melib.Mogrify.open(file_path) do
           %Melib.Image{} = media ->
-            media |> Melib.Identify.put_width_and_height
-          _ -> nil
-        end
+            media |> Melib.Identify.put_width_and_height()
 
+          _ ->
+            nil
+        end
       end
     end)
     |> Enum.filter(fn image -> !!image end)
@@ -187,7 +182,12 @@ defmodule Melib.CssSprite.Generator do
 
     start_value = %{images: [], max_height: 0, max_width: 0}
 
-    Enum.reduce(images, start_value, fn image, %{images: images, max_height: max_height, max_width: max_width} ->
+    Enum.reduce(images, start_value, fn image,
+                                        %{
+                                          images: images,
+                                          max_height: max_height,
+                                          max_width: max_width
+                                        } ->
       dirty = image.dirty
 
       x = 0
@@ -197,7 +197,7 @@ defmodule Melib.CssSprite.Generator do
         dirty
         |> Map.put(:x, x)
         |> Map.put(:y, y)
-        |> Map.put(:name, image.path |> Path.basename |> Path.rootname)
+        |> Map.put(:name, image.path |> Path.basename() |> Path.rootname())
 
       image = image |> Map.put(:dirty, dirty)
 
@@ -208,5 +208,4 @@ defmodule Melib.CssSprite.Generator do
       %{images: images, max_height: max_height, max_width: max_width}
     end)
   end
-
 end
