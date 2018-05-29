@@ -31,7 +31,7 @@ defmodule Melib.Mixfile do
 
   defp deps do
     [
-      {:qrcode, github: "gialib/qrcode"},
+      {:qrcode, "~> 0.1.0"},
       {:mime, "~> 1.2"},
       {:timex,  "~> 3.0"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
