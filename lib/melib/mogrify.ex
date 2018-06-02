@@ -532,7 +532,7 @@ defmodule Melib.Mogrify do
       if Keyword.has_key?(operations, :font) do
         operations
       else
-        operations ++ [font: opts |> Keyword.get(:font, :msyh) |> get_font]
+        operations ++ [font: opts |> Keyword.get(:font) |> get_font]
       end
 
     operations =
@@ -557,10 +557,6 @@ defmodule Melib.Mogrify do
 
   def image_operator(image, operator) do
     %{image | operations: image.operations ++ [{:image_operator, operator}]}
-  end
-
-  def get_font(:msyh) do
-    Path.join(:code.priv_dir(:melib), "/font/MSYH.TTC") |> Path.expand()
   end
 
   def get_font(path) when is_binary(path), do: Path.expand(path)
