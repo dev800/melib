@@ -46,15 +46,16 @@ defmodule Melib.MogrifyTest do
       %{}
     end
 
-    test "gif create" do
+    test "gif create from sources" do
       image =
-        Mogrify.create_gif(
-          path: @fixture_tmp_folder <> "/gif_create.gif",
-          gif_src: @gif_fixture_src |> Path.join("img_*.*"),
-          layers: "OptimizePlus",
-          delay: "25x100",
-          loop: 0
-        )
+        Mogrify.create_gif_from([
+          @gif_fixture_src |> Path.join("img_1.png"),
+          @gif_fixture_src |> Path.join("img_2.png"),
+          @gif_fixture_src |> Path.join("img_3.png"),
+          @gif_fixture_src |> Path.join("img_4.png")
+        ], [
+          path: @fixture_tmp_folder <> "/gif_create2.gif"
+        ])
 
       assert Map.take(image, [:width, :height, :frame_count, :mime_type]) == %{
                frame_count: 4,

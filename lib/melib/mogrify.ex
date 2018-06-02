@@ -135,6 +135,7 @@ defmodule Melib.Mogrify do
 
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
+      tmp_path |> Path.dirname |> File.mkdir_p!
 
       Melib.ImageMagick.run(
         "convert",
@@ -153,6 +154,8 @@ defmodule Melib.Mogrify do
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
+      output_path |> Path.dirname |> File.mkdir_p!
+
       Melib.ImageMagick.run(
         "convert",
         arguments_for_creating(image, output_path),
@@ -172,66 +175,90 @@ defmodule Melib.Mogrify do
   end
 
   ######### Begin set ########
-
   def set_layers(image, nil), do: image
+
   def set_layers(image, layers) do
     %{image | operations: image.operations ++ [layers: layers]}
   end
 
   def set_delay(image, nil), do: image
+
   def set_delay(image, delay) do
     %{image | operations: image.operations ++ [delay: delay]}
   end
 
   def set_loop(image, nil), do: image
+
   def set_loop(image, loop) do
     %{image | operations: image.operations ++ [loop: loop]}
   end
 
   def set_background(image, nil), do: image
+
   def set_background(image, background) do
     %{image | operations: image.operations ++ [background: background]}
   end
 
   def set_gif_src(image, nil), do: image
+
   def set_gif_src(image, gif_src) do
     %{image | operations: image.operations ++ [gif_src: gif_src]}
   end
 
   def set_path(image, nil), do: image
+
   def set_path(image, path) do
     %{image | path: path}
   end
 
   ######### END set ########
 
-  def create_gif(opts) when is_list(opts) do
-    create_gif(%Image{}, opts)
+  def create_gif_from(sources, opts \\ []) do
+    tmp_path = generate_temp_path()
+
+    tmp_file_paths =
+      sources
+      |> Enum.with_index()
+      |> Enum.map(fn {src, index} ->
+        tmp_file_path = "#{tmp_path}_#{index}"
+        File.copy!(src, tmp_file_path)
+        tmp_file_path
+      end)
+
+    speed = opts |> Keyword.get(:speed, 1)
+
+    image =
+      opts
+      |> Keyword.put(:layers, "OptimizePlus")
+      |> Keyword.put(:delay, "#{25 * speed}x#{25 * length(sources)}")
+      |> Keyword.put(:gif_src, "#{tmp_path}_*")
+      |> _create_gif
+
+    tmp_file_paths |> Enum.each(fn path -> File.rm!(path) end)
+
+    image
   end
 
-  def create_gif(%Image{}=image) do
-    create_gif(image, [])
+  defp _create_gif(opts) when is_list(opts) do
+    _create_gif(%Image{}, opts)
   end
 
-  @doc """
-  ## Params
+  defp _create_gif(%Image{} = image) do
+    _create_gif(image, [])
+  end
 
-  * path
-  * gif_src
-  * layers         # OptimizePlus
-  * delay          # 25x100
-  * loop           # 0
-  """
-  def create_gif(image, opts) do
+  defp _create_gif(image, opts) do
     image =
       image
-      |> set_path(opts[:path])
+      |> set_path(opts[:path] || "#{generate_temp_path()}.gif")
       |> set_gif_src(opts[:gif_src])
       |> set_layers(opts[:layers])
       |> set_delay(opts[:delay])
       |> set_loop(opts[:loop])
 
     output_path = image.path
+
+    output_path |> Path.dirname |> File.mkdir_p!
 
     Melib.ImageMagick.run(
       "convert",

@@ -49,6 +49,25 @@ cd .. && \
 rm -rf ImageMagick-6.9.9-47.tar.gz
 ```
 
+## Usage
+
+### create gif from static images
+
+```elixir
+images = [
+ "/Users/happy/tmp/a/1.jpg",
+ "/Users/happy/tmp/a/2.jpg",
+ "/Users/happy/tmp/a/3.jpg",
+ "/Users/happy/tmp/a/4.jpg",
+ "/Users/happy/tmp/a/5.jpg",
+ "/Users/happy/tmp/a/6.jpg"
+]
+Melib.Mogrify.create_gif_from images, [
+  path: "/Users/happy/tmp/b/1.gif",   # dist path
+  speed: 2
+]
+```
+
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/melib](https://hexdocs.pm/melib).
