@@ -3,6 +3,7 @@ defmodule Melib.Compat do
 
   def rand_uniform(high) do
     Code.ensure_loaded(:rand)
+
     if function_exported?(:rand, :uniform, 1) do
       :rand.uniform(high)
     else
@@ -13,11 +14,11 @@ defmodule Melib.Compat do
 
   def string_trim(string) do
     Code.ensure_loaded(String)
+
     if function_exported?(String, :trim, 1) do
       String.trim(string)
     else
       apply(String, :strip, [string])
     end
   end
-
 end

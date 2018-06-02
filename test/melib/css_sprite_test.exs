@@ -1,14 +1,14 @@
 defmodule Melib.CssSpriteTest do
   use ExUnit.Case
 
-  @x1_src Path.join(__DIR__, "../fixtures/icons/x1") |> Path.expand
-  @x2_src Path.join(__DIR__, "../fixtures/icons/x2") |> Path.expand
+  @x1_src Path.join(__DIR__, "../fixtures/icons/x1") |> Path.expand()
+  @x2_src Path.join(__DIR__, "../fixtures/icons/x2") |> Path.expand()
 
-  @x1_css_to Path.join(__DIR__, "../tmp/css_sprite/x1.css") |> Path.expand
-  @x2_css_to Path.join(__DIR__, "../tmp/css_sprite/x2.css") |> Path.expand
+  @x1_css_to Path.join(__DIR__, "../tmp/css_sprite/x1.css") |> Path.expand()
+  @x2_css_to Path.join(__DIR__, "../tmp/css_sprite/x2.css") |> Path.expand()
 
-  @x1_img_to Path.join(__DIR__, "../tmp/css_sprite/x1.png") |> Path.expand
-  @x2_img_to Path.join(__DIR__, "../tmp/css_sprite/x2.png") |> Path.expand
+  @x1_img_to Path.join(__DIR__, "../tmp/css_sprite/x1.png") |> Path.expand()
+  @x2_img_to Path.join(__DIR__, "../tmp/css_sprite/x2.png") |> Path.expand()
 
   test "generate x1" do
     Melib.CssSprite.generate(
@@ -35,5 +35,4 @@ defmodule Melib.CssSpriteTest do
       zoom: 2
     )
   end
-
 end

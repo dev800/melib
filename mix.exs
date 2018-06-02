@@ -7,8 +7,8 @@ defmodule Melib.Mixfile do
       name: "Melib",
       version: "0.1.0",
       elixir: "~> 1.4",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "Lib for elixir",
       source_url: "https://github.com/gialib/melib",
@@ -16,7 +16,7 @@ defmodule Melib.Mixfile do
       package: package(),
       docs: [
         extras: ["README.md"],
-        main: "readme",
+        main: "readme"
       ]
     ]
   end
@@ -31,9 +31,9 @@ defmodule Melib.Mixfile do
 
   defp deps do
     [
-      {:qrcode, github: "gialib/qrcode"},
+      {:qrcode, "~> 0.0"},
       {:mime, "~> 1.2"},
-      {:timex,  "~> 3.0"},
+      {:timex, "~> 3.0"},
       {:ex_doc, "~> 0.14", only: :dev, runtime: false}
     ]
   end

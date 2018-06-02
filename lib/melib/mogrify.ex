@@ -50,7 +50,7 @@ defmodule Melib.Mogrify do
       raise(File.Error)
     end
 
-    %Image{path: path} |> Identify.put_mime_type
+    %Image{path: path} |> Identify.put_mime_type()
   end
 
   @doc """
@@ -69,19 +69,31 @@ defmodule Melib.Mogrify do
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
 
-      Melib.system_cmd "mogrify", arguments_for_saving(image, tmp_path), stderr_to_stdout: true
+      Melib.system_cmd("mogrify", arguments_for_saving(image, tmp_path), stderr_to_stdout: true)
 
       if image.operations[:watermark] do
-        Melib.system_cmd("composite", arguments_for_watermark(image, tmp_path, opts), stderr_to_stdout: true)
+        Melib.system_cmd(
+          "composite",
+          arguments_for_watermark(image, tmp_path, opts),
+          stderr_to_stdout: true
+        )
       end
 
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
-      Melib.system_cmd "mogrify", arguments_for_saving(image, output_path), stderr_to_stdout: true
+      Melib.system_cmd(
+        "mogrify",
+        arguments_for_saving(image, output_path),
+        stderr_to_stdout: true
+      )
 
       if image.operations[:watermark] do
-        Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
+        Melib.system_cmd(
+          "composite",
+          arguments_for_watermark(image, output_path, opts),
+          stderr_to_stdout: true
+        )
       end
     end
 
@@ -89,11 +101,11 @@ defmodule Melib.Mogrify do
   end
 
   defp hex_random(n) do
-    n |> :crypto.strong_rand_bytes |> Base.encode16(case: :lower)
+    n |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
   end
 
   defp generate_temp_path do
-    System.tmp_dir |> Path.join("melib-" <> hex_random(16))
+    System.tmp_dir() |> Path.join("melib-" <> hex_random(16))
   end
 
   @doc """
@@ -118,16 +130,28 @@ defmodule Melib.Mogrify do
       Melib.system_cmd("convert", arguments_for_creating(image, tmp_path), stderr_to_stdout: true)
 
       if image.operations[:watermark] do
-        Melib.system_cmd("composite", arguments_for_watermark(image, tmp_path, opts), stderr_to_stdout: true)
+        Melib.system_cmd(
+          "composite",
+          arguments_for_watermark(image, tmp_path, opts),
+          stderr_to_stdout: true
+        )
       end
 
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
-      Melib.system_cmd("convert", arguments_for_creating(image, output_path), stderr_to_stdout: true)
+      Melib.system_cmd(
+        "convert",
+        arguments_for_creating(image, output_path),
+        stderr_to_stdout: true
+      )
 
       if image.operations[:watermark] do
-        Melib.system_cmd("composite", arguments_for_watermark(image, output_path, opts), stderr_to_stdout: true)
+        Melib.system_cmd(
+          "composite",
+          arguments_for_watermark(image, output_path, opts),
+          stderr_to_stdout: true
+        )
       end
     end
 
@@ -154,6 +178,7 @@ defmodule Melib.Mogrify do
   def histogram(image) do
     img = image |> custom("format", "%c")
     args = arguments(img) ++ [image.path, "histogram:info:-"]
+
     Melib.system_cmd("convert", args, stderr_to_stdout: false)
     |> elem(0)
     |> process_histogram_output
@@ -163,35 +188,38 @@ defmodule Melib.Mogrify do
     format = Map.get(image.dirty, :format, image.format)
     postfix = Map.get(image.dirty, :postfix, image.postfix)
 
-    %{image | path: output_path,
-              ext: Path.extname(output_path),
-              format: format,
-              postfix: postfix,
-              operations: [],
-              dirty: %{}}
+    %{
+      image
+      | path: output_path,
+        ext: Path.extname(output_path),
+        format: format,
+        postfix: postfix,
+        operations: [],
+        dirty: %{}
+    }
   end
 
   defp histogram_integerify(hist) do
     hist
-    |> Enum.into(%{}, fn {k,v} ->
-      if (k == "hex") do
-        { k, v }
+    |> Enum.into(%{}, fn {k, v} ->
+      if k == "hex" do
+        {k, v}
       else
-        { k, (v |> Compat.string_trim |> String.to_integer) }
+        {k, v |> Compat.string_trim() |> String.to_integer()}
       end
     end)
   end
 
   defp extract_histogram_data(entry) do
     ~r/^\s+(?<count>\d+):\s+\((?<red>[\d\s]+),(?<green>[\d\s]+),(?<blue>[\d\s]+)\)\s+(?<hex>\#[abcdef\d]{6})\s+/
-    |> Regex.named_captures(entry |> String.downcase)
+    |> Regex.named_captures(entry |> String.downcase())
     |> histogram_integerify
   end
 
   defp process_histogram_output(histogram_output) do
     histogram_output
     |> String.split("\n")
-    |> Enum.reject( fn (s) -> (s |> String.length) == 0 end )
+    |> Enum.reject(fn s -> s |> String.length() == 0 end)
     |> Enum.map(&extract_histogram_data/1)
   end
 
@@ -232,18 +260,18 @@ defmodule Melib.Mogrify do
     Enum.flat_map(image.operations, &normalize_arguments/1)
   end
 
-  defp normalize_arguments({option, :original}),       do: ["#{option}"]
-  defp normalize_arguments({:gif_frame, _watermark}),  do: []
-  defp normalize_arguments({:watermark, _watermark}),  do: []
+  defp normalize_arguments({option, :original}), do: ["#{option}"]
+  defp normalize_arguments({:gif_frame, _watermark}), do: []
+  defp normalize_arguments({:watermark, _watermark}), do: []
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
-  defp normalize_arguments({"annotate", params}),      do: ~w(-annotate #{params})
-  defp normalize_arguments({"histogram:" <> option, nil}),      do: ["histogram:#{option}"]
-  defp normalize_arguments({"+" <> option, nil}),      do: ["+#{option}"]
-  defp normalize_arguments({"-" <> option, nil}),      do: ["-#{option}"]
-  defp normalize_arguments({option, nil}),             do: ["-#{option}"]
-  defp normalize_arguments({"+" <> option, params}),   do: ["+#{option}", to_string(params)]
-  defp normalize_arguments({"-" <> option, params}),   do: ["-#{option}", to_string(params)]
-  defp normalize_arguments({option, params}),          do: ["-#{option}", to_string(params)]
+  defp normalize_arguments({"annotate", params}), do: ~w(-annotate #{params})
+  defp normalize_arguments({"histogram:" <> option, nil}), do: ["histogram:#{option}"]
+  defp normalize_arguments({"+" <> option, nil}), do: ["+#{option}"]
+  defp normalize_arguments({"-" <> option, nil}), do: ["-#{option}"]
+  defp normalize_arguments({option, nil}), do: ["-#{option}"]
+  defp normalize_arguments({"+" <> option, params}), do: ["+#{option}", to_string(params)]
+  defp normalize_arguments({"-" <> option, params}), do: ["-#{option}", to_string(params)]
+  defp normalize_arguments({option, params}), do: ["-#{option}", to_string(params)]
 
   @doc """
   Makes a copy of original image
@@ -257,6 +285,7 @@ defmodule Melib.Mogrify do
   def temporary_path_for(%{dirty: %{path: dirty_path}} = _image) do
     do_temporary_path_for(dirty_path)
   end
+
   def temporary_path_for(%{path: path} = _image) do
     do_temporary_path_for(path)
   end
@@ -264,7 +293,7 @@ defmodule Melib.Mogrify do
   defp do_temporary_path_for(path) do
     name = Path.basename(path)
     random = Compat.rand_uniform(999_999)
-    Path.join(System.tmp_dir, "#{random}-#{name}")
+    Path.join(System.tmp_dir(), "#{random}-#{name}")
   end
 
   @doc """
@@ -272,7 +301,7 @@ defmodule Melib.Mogrify do
   """
   def verbose(image) do
     args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
-    {output, 0} = Melib.system_cmd "mogrify", args, stderr_to_stdout: true
+    {output, 0} = Melib.system_cmd("mogrify", args, stderr_to_stdout: true)
 
     info =
       ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
@@ -285,7 +314,7 @@ defmodule Melib.Mogrify do
   end
 
   defp dev_null do
-    case :os.type do
+    case :os.type() do
       {:win32, _} -> "NUL"
       _ -> "/dev/null"
     end
@@ -293,12 +322,15 @@ defmodule Melib.Mogrify do
 
   defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
   defp normalize_verbose_term({"animated", ""}), do: {:animated, false}
+
   defp normalize_verbose_term({key, value}) when key in ["width", "height"] do
     {String.to_atom(key), String.to_integer(value)}
   end
+
   defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
 
   defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
+
   defp put_frame_count(map, text) do
     # skip the [0] lines which may be duplicated
     matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
@@ -312,14 +344,17 @@ defmodule Melib.Mogrify do
   """
   def format(image, format) do
     downcase_format = String.downcase(format)
+
     postfix =
       if downcase_format && downcase_format != "" do
         "." <> downcase_format
       else
         ""
       end
+
     ext = ".#{downcase_format}"
     rootname = Path.rootname(image.path, image.ext)
+
     dirty =
       image.dirty
       |> Map.put(:path, "#{rootname}#{ext}")
@@ -327,8 +362,7 @@ defmodule Melib.Mogrify do
       |> Map.put(:postfix, postfix)
       |> Map.put(:mime_type, MIME.type(downcase_format))
 
-    %{image | operations: image.operations ++ [format: format],
-              dirty: dirty}
+    %{image | operations: image.operations ++ [format: format], dirty: dirty}
   end
 
   @doc """
@@ -370,18 +404,20 @@ defmodule Melib.Mogrify do
   def resize_to_fill(image, params) do
     [_, width, height] = Regex.run(~r/(\d+)x(\d+)/, params)
     image = Melib.Mogrify.verbose(image)
-    {width, _} = Float.parse width
-    {height, _} = Float.parse height
+    {width, _} = Float.parse(width)
+    {height, _} = Float.parse(height)
     cols = image.width
     rows = image.height
 
     if width != cols || height != rows do
-      scale_x = width/cols #.to_f
-      scale_y = height/rows #.to_f
+      # .to_f
+      scale_x = width / cols
+      # .to_f
+      scale_y = height / rows
       larger_scale = max(scale_x, scale_y)
-      cols = (larger_scale * (cols + 0.5)) |> Float.round
-      rows = (larger_scale * (rows + 0.5)) |> Float.round
-      image = resize image, (if scale_x >= scale_y, do: "#{cols}", else: "x#{rows}")
+      cols = (larger_scale * (cols + 0.5)) |> Float.round()
+      rows = (larger_scale * (rows + 0.5)) |> Float.round()
+      image = resize(image, if(scale_x >= scale_y, do: "#{cols}", else: "x#{rows}"))
 
       if width != cols || height != rows do
         extent(image, params)
@@ -418,7 +454,7 @@ defmodule Melib.Mogrify do
   * min_width
   """
   def watermark(image, watermark, opts \\ []) do
-    image = image |> Identify.put_width_and_height
+    image = image |> Identify.put_width_and_height()
     operations = image.operations
     height_valid = !opts[:min_height] or !image.height or image.height >= opts[:min_height]
     width_valid = !opts[:min_width] or !image.width or image.width >= opts[:min_width]
@@ -480,7 +516,8 @@ defmodule Melib.Mogrify do
       if Keyword.has_key?(operations, :pointsize) do
         operations
       else
-        operations ++ [pointsize: opts |> Keyword.get(:pointsize, 16)] # TODO: 字体大小应该根据图片的大小自适应一下
+        # TODO: 字体大小应该根据图片的大小自适应一下
+        operations ++ [pointsize: opts |> Keyword.get(:pointsize, 16)]
       end
 
     operations =
@@ -490,7 +527,14 @@ defmodule Melib.Mogrify do
         operations ++ [font: opts |> Keyword.get(:font, :msyh) |> get_font]
       end
 
-    operations = operations ++ ["draw": "text +#{Keyword.get(opts, :x, 0)},+#{Keyword.get(opts, :y, 0)} '#{Keyword.get(opts, :text, "")}'"]
+    operations =
+      operations ++
+        [
+          draw:
+            "text +#{Keyword.get(opts, :x, 0)},+#{Keyword.get(opts, :y, 0)} '#{
+              Keyword.get(opts, :text, "")
+            }'"
+        ]
 
     %{image | operations: operations}
   end
@@ -508,11 +552,12 @@ defmodule Melib.Mogrify do
   end
 
   def get_font(:msyh) do
-    Path.join(:code.priv_dir(:melib), "/font/MSYH.TTC") |> Path.expand
-  end
-  def get_font(path) when is_binary(path), do: Path.expand(path)
-  def get_font(_) do
-    Path.join(:code.priv_dir(:melib), "/font/JDJSTE.TTF") |> Path.expand
+    Path.join(:code.priv_dir(:melib), "/font/MSYH.TTC") |> Path.expand()
   end
 
+  def get_font(path) when is_binary(path), do: Path.expand(path)
+
+  def get_font(_) do
+    Path.join(:code.priv_dir(:melib), "/font/JDJSTE.TTF") |> Path.expand()
+  end
 end

@@ -12,9 +12,10 @@ defmodule Melib.Exif.ThumbnailTest do
     Melib.Exif.Data.Thumbnail.to_image(@filename, metadata.thumbnail)
     assert File.exists?(@thumbname)
     File.rm!(@thumbname)
-    assert %Melib.Exif.Data.Thumbnail{
-      thumbnail_offset: 631, thumbnail_size: 19837
-    } = metadata.thumbnail |> Melib.Exif.Data.Thumbnail.from_map
-  end
 
+    assert %Melib.Exif.Data.Thumbnail{
+             thumbnail_offset: 631,
+             thumbnail_size: 19837
+           } = metadata.thumbnail |> Melib.Exif.Data.Thumbnail.from_map()
+  end
 end

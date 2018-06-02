@@ -55,10 +55,12 @@ defmodule Melib.Exif.Data.Gps do
     # 41 deg 23' 16.02" N, 2 deg 11' 49.58" E
     [lat_d, lat_m, lat_s] = data.gps_latitude
     [lon_d, lon_m, lon_s] = data.gps_longitude
+
     [
       ~s|#{lat_d}°#{lat_m}´#{round(lat_s)}˝#{data.gps_latitude_ref || "N"}|,
       ~s|#{lon_d}°#{lon_m}´#{round(lon_s)}˝#{data.gps_longitude_ref || "N"}|
-    ] |> Enum.join(",")
+    ]
+    |> Enum.join(",")
   end
 
   defimpl String.Chars, for: Melib.Exif.Data.Gps do

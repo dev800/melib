@@ -11,14 +11,14 @@ defmodule Melib.MogrifyTest do
   @fixture_with_space Path.join(__DIR__, "../fixtures/img/image with space in name/ben der.jpg")
   @fixture_animated Path.join(__DIR__, "../fixtures/img/bender_anim.gif")
   @fixture_rgbw Path.join(__DIR__, "../fixtures/img/rgbw.png")
-  @temp_test_directory Path.join(__DIR__, "../tmp/mogrify test folder") |> Path.expand
+  @temp_test_directory Path.join(__DIR__, "../tmp/mogrify test folder") |> Path.expand()
   @temp_image_with_space Path.join(@temp_test_directory, "1 1.jpg")
 
   @fixture_incorrect_sbit Path.join(__DIR__, "../fixtures/img/Incorrect_sBIT.jpg")
 
   @fixture_meijing Path.join(__DIR__, "../fixtures/img/meijing.png")
   @fixture_watermark Path.join(__DIR__, "../fixtures/img/watermark.png")
-  @fixture_tmp_folder Path.join(__DIR__, "../tmp/mogrify") |> Path.expand
+  @fixture_tmp_folder Path.join(__DIR__, "../tmp/mogrify") |> Path.expand()
 
   describe "Incorrect_sBIT Testing" do
     setup do
@@ -28,12 +28,14 @@ defmodule Melib.MogrifyTest do
 
     test "watermark and resize and text" do
       @fixture_incorrect_sbit
-      |> Mogrify.open
-      |> Mogrify.verbose
+      |> Mogrify.open()
+      |> Mogrify.verbose()
       |> Mogrify.resize("520>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
       |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)
-      |> Mogrify.create(path: @fixture_tmp_folder <> "/Incorrect_sBIT.with_watermark_text_520.jpg")
+      |> Mogrify.create(
+        path: @fixture_tmp_folder <> "/Incorrect_sBIT.with_watermark_text_520.jpg"
+      )
     end
   end
 
@@ -45,22 +47,22 @@ defmodule Melib.MogrifyTest do
 
     test "gif resize" do
       @fixture_animated
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("180>")
       |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180.gif")
     end
 
     test "gif resize and thumbnail" do
       @fixture_animated
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("180>")
-      |> Mogrify.gif_thumbnail
+      |> Mogrify.gif_thumbnail()
       |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180.jpg")
     end
 
     test "gif watermark skip" do
       @fixture_animated
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("180>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast", gif_skip: true)
       |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180_skip_watermark.gif")
@@ -68,29 +70,37 @@ defmodule Melib.MogrifyTest do
 
     test "gif watermark skip when size to small" do
       @fixture_animated
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("180>")
-      |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast", gif_skip: true, min_width: 500, min_height: 500)
-      |> Mogrify.create(path: @fixture_tmp_folder <> "/gif_180_skip_watermark_when_size_small.gif")
+      |> Mogrify.watermark(
+        @fixture_watermark,
+        gravity: "NorthEast",
+        gif_skip: true,
+        min_width: 500,
+        min_height: 500
+      )
+      |> Mogrify.create(
+        path: @fixture_tmp_folder <> "/gif_180_skip_watermark_when_size_small.gif"
+      )
     end
 
     test "resize" do
       @fixture_meijing
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("580>")
       |> Mogrify.create(path: @fixture_tmp_folder <> "/meijing_580.jpg")
     end
 
     test "draw text" do
       @fixture_meijing
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)
       |> Mogrify.create(path: @fixture_tmp_folder <> "/meijing_with_text.jpg")
     end
 
     test "draw text and resize" do
       @fixture_meijing
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("520>")
       |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)
       |> Mogrify.create(path: @fixture_tmp_folder <> "/meijing_with_text_520.jpg")
@@ -98,14 +108,14 @@ defmodule Melib.MogrifyTest do
 
     test "watermark" do
       @fixture_meijing
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
       |> Mogrify.create(path: @fixture_tmp_folder <> "/meijing_with_watermark.jpg")
     end
 
     test "watermark and resize" do
       @fixture_meijing
-      |> Mogrify.open
+      |> Mogrify.open()
       |> Mogrify.resize("520>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
       |> Mogrify.create(path: @fixture_tmp_folder <> "/meijing_with_watermark_520.jpg")
@@ -113,8 +123,8 @@ defmodule Melib.MogrifyTest do
 
     test "watermark and resize and text" do
       @fixture_meijing
-      |> Mogrify.open
-      |> Mogrify.verbose
+      |> Mogrify.open()
+      |> Mogrify.verbose()
       |> Mogrify.resize("520>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
       |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)
@@ -140,7 +150,7 @@ defmodule Melib.MogrifyTest do
     end
 
     test ".save" do
-      path = Path.join(System.tmp_dir, "1.jpg")
+      path = Path.join(System.tmp_dir(), "1.jpg")
       image = open(@fixture) |> save(path: path)
 
       assert File.regular?(path)
@@ -161,7 +171,7 @@ defmodule Melib.MogrifyTest do
 
     test ".save in place" do
       # setup, make a copy
-      path = Path.join(System.tmp_dir, "1.jpg")
+      path = Path.join(System.tmp_dir(), "1.jpg")
       open(@fixture) |> save(path: path)
 
       # test begins
@@ -185,11 +195,13 @@ defmodule Melib.MogrifyTest do
 
     test ".save :in_place ignores :path option" do
       # setup, make a copy
-      path = Path.join(System.tmp_dir, "1.jpg")
+      path = Path.join(System.tmp_dir(), "1.jpg")
       open(@fixture) |> save(path: path)
 
       # test begins
-      image = open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
+      image =
+        open(path) |> resize("600x600") |> save(in_place: true, path: "#{path}-ignore") |> verbose
+
       assert %Image{path: path, height: 584, width: 600} = image
 
       File.rm!(path)
@@ -201,14 +213,19 @@ defmodule Melib.MogrifyTest do
       open(@fixture) |> save(path: @temp_image_with_space)
 
       # test begins
-      image = open(@temp_image_with_space) |> resize("600x600") |> save(in_place: true, path: "#{@temp_image_with_space}-ignore") |> verbose
+      image =
+        open(@temp_image_with_space)
+        |> resize("600x600")
+        |> save(in_place: true, path: "#{@temp_image_with_space}-ignore")
+        |> verbose
+
       assert %Image{path: @temp_image_with_space, height: 584, width: 600} = image
 
       File.rm_rf!(@temp_test_directory)
     end
 
     test ".create" do
-      path = Path.join(System.tmp_dir, "1.jpg")
+      path = Path.join(System.tmp_dir(), "1.jpg")
       image = %Image{path: path} |> canvas("white") |> create(path: path)
 
       assert File.exists?(path)
@@ -219,7 +236,11 @@ defmodule Melib.MogrifyTest do
 
     test ".create when file name has spaces" do
       File.mkdir_p!(@temp_test_directory)
-      image = %Image{path: @temp_image_with_space} |> canvas("white") |> create(path: @temp_image_with_space)
+
+      image =
+        %Image{path: @temp_image_with_space}
+        |> canvas("white")
+        |> create(path: @temp_image_with_space)
 
       assert File.exists?(@temp_image_with_space)
       assert %Image{path: @temp_image_with_space} = image
@@ -229,26 +250,30 @@ defmodule Melib.MogrifyTest do
 
     test ".copy" do
       image = open(@fixture) |> copy
-      tmp_dir = System.tmp_dir |> Regex.escape
+      tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
       assert Regex.match?(~r(#{tmp_dir}#{slash}\d+-bender\.jpg), image.path)
     end
 
     test ".copy when file name has spaces" do
       image = open(@fixture_with_space) |> copy
-      tmp_dir = System.tmp_dir |> Regex.escape
+      tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
       assert Regex.match?(~r(#{tmp_dir}#{slash}\d+-ben\sder\.jpg), image.path)
     end
 
     test ".verbose" do
       image = open(@fixture)
-      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} = verbose(image)
+
+      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} =
+               verbose(image)
     end
 
     test ".verbose when file name has spaces" do
       image = open(@fixture_with_space)
-      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} = verbose(image)
+
+      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} =
+               verbose(image)
     end
 
     test ".verbose animated" do
@@ -257,12 +282,12 @@ defmodule Melib.MogrifyTest do
     end
 
     test ".verbose should not change file modification time" do
-      %{mtime: old_time} = File.stat! @fixture
+      %{mtime: old_time} = File.stat!(@fixture)
 
       :timer.sleep(1000)
       open(@fixture) |> verbose
 
-      %{mtime: new_time} = File.stat! @fixture
+      %{mtime: new_time} = File.stat!(@fixture)
       assert old_time == new_time
     end
 
@@ -313,28 +338,30 @@ defmodule Melib.MogrifyTest do
 
     test ".custom with plus-form of a command" do
       image_minus = open(@fixture) |> custom("raise", 50) |> save |> verbose
-      image_plus  = open(@fixture) |> custom("+raise", 50) |> save |> verbose
-      %{size: size_minus} = File.stat! image_minus.path
-      %{size: size_plus}  = File.stat! image_plus.path
+      image_plus = open(@fixture) |> custom("+raise", 50) |> save |> verbose
+      %{size: size_minus} = File.stat!(image_minus.path)
+      %{size: size_plus} = File.stat!(image_plus.path)
       assert size_minus != size_plus
     end
 
     test ".custom with explicit minus-form of a command" do
       image_implicit = open(@fixture) |> custom("raise", 50) |> save |> verbose
       image_explicit = open(@fixture) |> custom("-raise", 50) |> save |> verbose
-      %{size: size_implicit} = File.stat! image_implicit.path
-      %{size: size_explicit} = File.stat! image_explicit.path
+      %{size: size_implicit} = File.stat!(image_implicit.path)
+      %{size: size_explicit} = File.stat!(image_explicit.path)
       assert size_implicit == size_explicit
     end
 
     test ".histogram" do
-      hist = open(@fixture_rgbw) |> histogram |> Enum.sort_by( fn %{"hex" => hex} -> hex end )
+      hist = open(@fixture_rgbw) |> histogram |> Enum.sort_by(fn %{"hex" => hex} -> hex end)
+
       expected = [
         %{"blue" => 255, "count" => 400, "green" => 0, "hex" => "#0000ff", "red" => 0},
         %{"blue" => 0, "count" => 225, "green" => 255, "hex" => "#00ff00", "red" => 0},
         %{"blue" => 0, "count" => 525, "green" => 0, "hex" => "#ff0000", "red" => 255},
         %{"blue" => 255, "count" => 1350, "green" => 255, "hex" => "#ffffff", "red" => 255}
       ]
+
       assert hist == expected
     end
 
