@@ -69,10 +69,14 @@ defmodule Melib.Mogrify do
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
 
-      Melib.system_cmd("mogrify", arguments_for_saving(image, tmp_path), stderr_to_stdout: true)
+      Melib.ImageMagick.run(
+        "mogrify",
+        arguments_for_saving(image, tmp_path),
+        stderr_to_stdout: true
+      )
 
       if image.operations[:watermark] do
-        Melib.system_cmd(
+        Melib.ImageMagick.run(
           "composite",
           arguments_for_watermark(image, tmp_path, opts),
           stderr_to_stdout: true
@@ -82,14 +86,14 @@ defmodule Melib.Mogrify do
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
-      Melib.system_cmd(
+      Melib.ImageMagick.run(
         "mogrify",
         arguments_for_saving(image, output_path),
         stderr_to_stdout: true
       )
 
       if image.operations[:watermark] do
-        Melib.system_cmd(
+        Melib.ImageMagick.run(
           "composite",
           arguments_for_watermark(image, output_path, opts),
           stderr_to_stdout: true
@@ -127,10 +131,14 @@ defmodule Melib.Mogrify do
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
 
-      Melib.system_cmd("convert", arguments_for_creating(image, tmp_path), stderr_to_stdout: true)
+      Melib.ImageMagick.run(
+        "convert",
+        arguments_for_creating(image, tmp_path),
+        stderr_to_stdout: true
+      )
 
       if image.operations[:watermark] do
-        Melib.system_cmd(
+        Melib.ImageMagick.run(
           "composite",
           arguments_for_watermark(image, tmp_path, opts),
           stderr_to_stdout: true
@@ -140,14 +148,14 @@ defmodule Melib.Mogrify do
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
-      Melib.system_cmd(
+      Melib.ImageMagick.run(
         "convert",
         arguments_for_creating(image, output_path),
         stderr_to_stdout: true
       )
 
       if image.operations[:watermark] do
-        Melib.system_cmd(
+        Melib.ImageMagick.run(
           "composite",
           arguments_for_watermark(image, output_path, opts),
           stderr_to_stdout: true
@@ -179,7 +187,7 @@ defmodule Melib.Mogrify do
     img = image |> custom("format", "%c")
     args = arguments(img) ++ [image.path, "histogram:info:-"]
 
-    Melib.system_cmd("convert", args, stderr_to_stdout: false)
+    Melib.ImageMagick.run("convert", args, stderr_to_stdout: false)
     |> elem(0)
     |> process_histogram_output
   end
@@ -301,7 +309,7 @@ defmodule Melib.Mogrify do
   """
   def verbose(image) do
     args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
-    {output, 0} = Melib.system_cmd("mogrify", args, stderr_to_stdout: true)
+    {output, 0} = Melib.ImageMagick.run("mogrify", args, stderr_to_stdout: true)
 
     info =
       ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/

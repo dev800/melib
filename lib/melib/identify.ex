@@ -164,11 +164,6 @@ defmodule Melib.Identify do
     attachment
   end
 
-  # def fix_sbit(%Image{path: path, postfix: postfix, format: "png"} = image) do
-  #   tmp_path = System.tmp_dir |> Path.join(Melib.SecureRandom.hex <> postfix)
-  #   Melib.system_cmd("convert", [path, tmp_path], stderr_to_stdout: true)
-  #   %{image | path: tmp_path}
-  # end
   def fix_sbit(media), do: media
 
   def parse_verbose(data, file_path, type), do: parse_verbose(data, file_path, type, [])
@@ -219,7 +214,7 @@ defmodule Melib.Identify do
   end
 
   def get_width_and_height(file_path, :image) do
-    case Melib.system_cmd(
+    case Melib.ImageMagick.run(
            "identify",
            ["-format", "%m:%w:%h", file_path <> "[0]"],
            stderr_to_stdout: true

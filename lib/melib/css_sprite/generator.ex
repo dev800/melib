@@ -14,13 +14,13 @@ defmodule Melib.CssSprite.Generator do
 
     cond do
       blank?(img_src_dir) ->
-        Melib.log_error(":img_src_dir 不能为空")
+        Melib.log_error(":img_src_dir can's blank")
 
       blank?(img_to_path) ->
-        Melib.log_error(":img_to_path 不能为空")
+        Melib.log_error(":img_to_path can's blank")
 
       blank?(css_to_path) ->
-        Melib.log_error(":css_to_path 不能为空")
+        Melib.log_error(":css_to_path can's blank")
 
       true ->
         perform_generate(%{
@@ -76,7 +76,7 @@ defmodule Melib.CssSprite.Generator do
 
     img_to_path |> Path.dirname() |> File.mkdir_p!()
 
-    Melib.system_cmd("convert", [
+    Melib.ImageMagick.run("convert", [
       "-size",
       "#{max_width}x#{max_height}",
       "xc:none",
@@ -85,7 +85,7 @@ defmodule Melib.CssSprite.Generator do
 
     images
     |> Enum.each(fn image ->
-      Melib.system_cmd("composite", [
+      Melib.ImageMagick.run("composite", [
         "-geometry",
         "+#{image.dirty.x}+#{image.dirty.y}",
         image.path,
