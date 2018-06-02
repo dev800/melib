@@ -6,6 +6,7 @@ defmodule Melib.MogrifyTest do
 
   use ExUnit.Case, async: true
 
+  @gif_fixture_src Path.join(__DIR__, "../fixtures/img/gif_src")
   @gif_fixture Path.join(__DIR__, "../fixtures/img/bender_anim.gif")
   @fixture Path.join(__DIR__, "../fixtures/img/bender.jpg")
   @fixture_with_space Path.join(__DIR__, "../fixtures/img/image with space in name/ben der.jpg")
@@ -43,6 +44,24 @@ defmodule Melib.MogrifyTest do
     setup do
       File.mkdir_p!(@fixture_tmp_folder)
       %{}
+    end
+
+    test "gif create" do
+      image =
+        Mogrify.create_gif(
+          path: @fixture_tmp_folder <> "/gif_create.gif",
+          gif_src: @gif_fixture_src |> Path.join("img_*.*"),
+          layers: "OptimizePlus",
+          delay: "25x100",
+          loop: 0
+        )
+
+      assert Map.take(image, [:width, :height, :frame_count, :mime_type]) == %{
+               frame_count: 4,
+               height: 40,
+               mime_type: "image/gif",
+               width: 69
+             }
     end
 
     test "gif resize" do

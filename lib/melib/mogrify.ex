@@ -1,6 +1,11 @@
 defmodule Melib.Mogrify do
   @moduledoc """
+
   图片的基本操作
+
+  * layers         # OptimizePlus
+  * delay          # 25x100
+  * loop           # 0
   * resize         # 设置大小
   * crop           # 裁剪
   * colorspace,    # 颜色空间
@@ -166,6 +171,80 @@ defmodule Melib.Mogrify do
     image_after_command(image, output_path)
   end
 
+  ######### Begin set ########
+
+  def set_layers(image, nil), do: image
+  def set_layers(image, layers) do
+    %{image | operations: image.operations ++ [layers: layers]}
+  end
+
+  def set_delay(image, nil), do: image
+  def set_delay(image, delay) do
+    %{image | operations: image.operations ++ [delay: delay]}
+  end
+
+  def set_loop(image, nil), do: image
+  def set_loop(image, loop) do
+    %{image | operations: image.operations ++ [loop: loop]}
+  end
+
+  def set_background(image, nil), do: image
+  def set_background(image, background) do
+    %{image | operations: image.operations ++ [background: background]}
+  end
+
+  def set_gif_src(image, nil), do: image
+  def set_gif_src(image, gif_src) do
+    %{image | operations: image.operations ++ [gif_src: gif_src]}
+  end
+
+  def set_path(image, nil), do: image
+  def set_path(image, path) do
+    %{image | path: path}
+  end
+
+  ######### END set ########
+
+  def create_gif(opts) when is_list(opts) do
+    create_gif(%Image{}, opts)
+  end
+
+  def create_gif(%Image{}=image) do
+    create_gif(image, [])
+  end
+
+  @doc """
+  ## Params
+
+  * path
+  * gif_src
+  * layers         # OptimizePlus
+  * delay          # 25x100
+  * loop           # 0
+  """
+  def create_gif(image, opts) do
+    image =
+      image
+      |> set_path(opts[:path])
+      |> set_gif_src(opts[:gif_src])
+      |> set_layers(opts[:layers])
+      |> set_delay(opts[:delay])
+      |> set_loop(opts[:loop])
+
+    output_path = image.path
+
+    Melib.ImageMagick.run(
+      "convert",
+      arguments_for_gif_create(image, opts),
+      stderr_to_stdout: true
+    )
+
+    output_path
+    |> Identify.identify(identify: Keyword.get(opts, :identify, []))
+    |> verbose
+    |> image_after_command(output_path)
+  end
+
   @doc """
   Returns the histogram of the image
 
@@ -252,6 +331,10 @@ defmodule Melib.Mogrify do
     watermark_arguments(image) ++ [path, path]
   end
 
+  defp arguments_for_gif_create(image, _opts) do
+    arguments(image) ++ [image.operations[:gif_src], image.path]
+  end
+
   defp append_gif_frame_to_path(image) do
     if image.operations[:gif_frame] do
       image.path <> "[#{image.operations[:gif_frame]}]"
@@ -269,7 +352,8 @@ defmodule Melib.Mogrify do
   end
 
   defp normalize_arguments({option, :original}), do: ["#{option}"]
-  defp normalize_arguments({:gif_frame, _watermark}), do: []
+  defp normalize_arguments({:gif_frame, _gif_frame}), do: []
+  defp normalize_arguments({:gif_src, _gif_src}), do: []
   defp normalize_arguments({:watermark, _watermark}), do: []
   defp normalize_arguments({:image_operator, params}), do: ~w(#{params})
   defp normalize_arguments({"annotate", params}), do: ~w(-annotate #{params})
@@ -418,9 +502,7 @@ defmodule Melib.Mogrify do
     rows = image.height
 
     if width != cols || height != rows do
-      # .to_f
       scale_x = width / cols
-      # .to_f
       scale_y = height / rows
       larger_scale = max(scale_x, scale_y)
       cols = (larger_scale * (cols + 0.5)) |> Float.round()
