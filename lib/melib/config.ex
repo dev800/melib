@@ -10,7 +10,9 @@ defmodule Melib.Config do
     if font = @fonts |> Map.get(name) do
       font |> to_string |> get_font
     else
-      raise Melib.ConfigError, message: "config :melib, :fonts (#{name} -> is nil)"
+      :code.priv_dir(:melib)
+      |> Path.join("/font/JDJSTE.TTF")
+      |> Path.expand()
     end
   end
 
