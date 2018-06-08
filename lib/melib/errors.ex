@@ -9,3 +9,7 @@ end
 defmodule Melib.MimeTypeError do
   defexception [:message]
 end
+
+defmodule Melib.ConfigError do
+  defexception [:message]
+end
