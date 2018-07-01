@@ -10,6 +10,10 @@ defmodule Melib.MimeTypeError do
   defexception [:message]
 end
 
+defmodule Melib.NotFoundError do
+  defexception [:message]
+end
+
 defmodule Melib.ConfigError do
   defexception [:message]
 end

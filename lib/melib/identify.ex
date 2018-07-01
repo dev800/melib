@@ -19,7 +19,7 @@ defmodule Melib.Identify do
 
         cond do
           String.starts_with?(rows_text, "cannot open") ->
-            raise Melib.MimeTypeError,
+            raise Melib.NotFoundError,
               message: "#{__MODULE__}.mime_type -> No such file or directory"
 
           String.contains?(rows_text, " ") ->
