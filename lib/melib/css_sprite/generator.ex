@@ -116,6 +116,7 @@ defmodule Melib.CssSprite.Generator do
       List.insert_at(css_contents, -1, """
       .#{css_class_shared} {
       \s\sbackground-image: url(#{css_img_url});
+      \s\sdisplay: inline-block;
       }
 
       .#{css_class_shared} {
