@@ -41,7 +41,9 @@ defmodule Melib.Identify do
 
     case data[:mime_type] do
       "image/" <> _format ->
-        data |> parse_verbose(file_path, :image, opts)
+        data
+        |> parse_verbose(file_path, :image, opts)
+        |> Melib.Mogrify.verbose
 
       _ ->
         data |> parse_verbose(file_path, :attachment, opts)
@@ -193,7 +195,15 @@ defmodule Melib.Identify do
   def parse_verbose(data, file_path, :image, opts) do
     filename = file_path |> Path.basename()
 
+    frame_count =
+      if data[:mime_type] == "image/gif" do
+
+      else
+        1
+      end
+
     image = %Image{
+      frame_count: frame_count,
       animated: data[:animated],
       ext: data[:ext],
       format: data[:format],

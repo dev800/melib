@@ -135,7 +135,7 @@ defmodule Melib.Mogrify do
 
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
-      tmp_path |> Path.dirname |> File.mkdir_p!
+      tmp_path |> Path.dirname() |> File.mkdir_p!()
 
       Melib.ImageMagick.run(
         "convert",
@@ -154,7 +154,7 @@ defmodule Melib.Mogrify do
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
-      output_path |> Path.dirname |> File.mkdir_p!
+      output_path |> Path.dirname() |> File.mkdir_p!()
 
       Melib.ImageMagick.run(
         "convert",
@@ -258,7 +258,7 @@ defmodule Melib.Mogrify do
 
     output_path = image.path
 
-    output_path |> Path.dirname |> File.mkdir_p!
+    output_path |> Path.dirname() |> File.mkdir_p!()
 
     Melib.ImageMagick.run(
       "convert",
@@ -418,7 +418,7 @@ defmodule Melib.Mogrify do
   @doc """
   Provides detailed information about the image
   """
-  def verbose(image) do
+  def verbose(%Melib.Image{} = image) do
     args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
     {output, 0} = Melib.ImageMagick.run("mogrify", args, stderr_to_stdout: true)
 
@@ -431,6 +431,8 @@ defmodule Melib.Mogrify do
 
     Map.merge(image, info)
   end
+
+  def verbose(attachment), do: attachment
 
   defp dev_null do
     case :os.type() do
@@ -641,7 +643,7 @@ defmodule Melib.Mogrify do
       if Keyword.has_key?(operations, :font) do
         operations
       else
-        operations ++ [font: opts |> Keyword.get(:font) |> Melib.Config.get_font]
+        operations ++ [font: opts |> Keyword.get(:font) |> Melib.Config.get_font()]
       end
 
     operations =
@@ -667,5 +669,4 @@ defmodule Melib.Mogrify do
   def image_operator(image, operator) do
     %{image | operations: image.operations ++ [{:image_operator, operator}]}
   end
-
 end
