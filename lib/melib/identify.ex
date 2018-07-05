@@ -41,9 +41,13 @@ defmodule Melib.Identify do
 
     case data[:mime_type] do
       "image/" <> _format ->
-        data
-        |> parse_verbose(file_path, :image, opts)
-        |> Melib.Mogrify.verbose
+        media = data |> parse_verbose(file_path, :image, opts)
+
+        if Keyword.get(opts, :verbose, true) do
+          media |> Melib.Mogrify.verbose
+        else
+          media
+        end
 
       _ ->
         data |> parse_verbose(file_path, :attachment, opts)
