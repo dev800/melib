@@ -38,7 +38,7 @@ defmodule Melib.Captcha.RenderNew do
       |> _append_params(:gravity, "NorthWest")
       |> _append_params(:strokewidth, "#{opts[:font_width] || 1}")
       |> append_label(opts)
-      |> _append_params(:strokewidth, "#{opts[:bezier_width] || "2"}")
+      |> _append_params(:strokewidth, "#{opts[:bezier_width] || 2}")
       |> _append_params(:stroke, random_rgba())
       |> _append_params(:fill, "rgba(0, 0, 0, 0)")
       |> gen_bezier()
