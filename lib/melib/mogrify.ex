@@ -113,7 +113,7 @@ defmodule Melib.Mogrify do
     n |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
   end
 
-  defp generate_temp_path do
+  def generate_temp_path do
     System.tmp_dir() |> Path.join("melib-" <> hex_random(16))
   end
 
