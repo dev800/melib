@@ -1,4 +1,4 @@
-defmodule Melib.Captcha.RenderNew do
+defmodule Melib.Captcha do
   alias Melib.{
     Mogrify,
     Config
@@ -55,7 +55,7 @@ defmodule Melib.Captcha.RenderNew do
   end
 
   def random_rgba do
-    "rgba(#{Enum.random(0..255)}, #{Enum.random(0..255)}, #{Enum.random(0..255)}, 0.7)"
+    "rgba(#{Enum.random(0..255)}, #{Enum.random(0..255)}, #{Enum.random(0..255)}, 0.3)"
   end
 
   def gen_bezier(params) do
@@ -123,8 +123,8 @@ defmodule Melib.Captcha.RenderNew do
   # 生成随机纵向坐标值，计算横向横向坐标值
   def random_position(chars, x_per_char, index, height) do
     x = ((index - 1) * 2 + 1) * x_per_char
-    y = Enum.random(10..(height - 10))
-    rotate = Enum.random(-15..15)
+    y = Enum.random(15..(height - 15))
+    rotate = Enum.random(-30..30)
     {char, _} = List.pop_at(chars, index - 1)
 
     "translate #{x},#{y} rotate #{rotate} text 0,-8 \"#{char}\""
