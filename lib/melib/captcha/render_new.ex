@@ -82,8 +82,7 @@ defmodule Melib.Captcha.RenderNew do
   def append_label(params, opts) do
     chars =
       (opts[:label] || "")
-      |> String.split("")
-      |> Enum.filter(fn x -> x != "" end)
+      |> String.split("", trim: true)
 
     count = Enum.count(chars)
     size = get_size(opts[:size] || "100x40")
