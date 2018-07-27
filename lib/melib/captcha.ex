@@ -60,15 +60,15 @@ defmodule Melib.Captcha do
 
   def gen_bezier(params) do
     # 指定干扰线条数，但不能保证所有线一定都在图片上，干扰线位置由函数计算结果而定
-    1..3
-    |> Enum.reduce(params, fn _, params ->
-      _gen_bezier(params)
-    end)
+    _gen_bezier(params, 3)
   end
 
-  defp _gen_bezier(params) do
+  defp _gen_bezier(params, 0), do: params
+
+  defp _gen_bezier(params, index) do
     bezier = "bezier #{random_coor()} #{random_coor()} #{random_coor()} #{random_coor()}"
     _append_params(params, :draw, bezier)
+    |> _gen_bezier(index - 1)
   end
 
   defp random_coor(list \\ -50..100) do
