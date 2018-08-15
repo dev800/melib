@@ -49,16 +49,20 @@ defmodule Melib.Exif do
       case byte_order do
         0x4949 -> :little
         0x4D4D -> :big
-        _ -> :little
+        _ -> nil
       end
 
-    read_unsigned = fn value -> :binary.decode_unsigned(value, endian) end
+    if endian do
+      read_unsigned = fn value -> :binary.decode_unsigned(value, endian) end
 
-    # sanity check
-    42 = read_unsigned.(forty_two)
-    offset = read_unsigned.(offset)
+      # sanity check
+      42 = read_unsigned.(forty_two)
+      offset = read_unsigned.(offset)
 
-    {:ok, reshape(read_ifd({exif, offset, read_unsigned}))}
+      {:ok, reshape(read_ifd({exif, offset, read_unsigned}))}
+    else
+      {:error, :read_fail_in_jpeg}
+    end
   end
 
   def read_exif(<<0xFF::8, _number::8, len::16, data::binary>>) do

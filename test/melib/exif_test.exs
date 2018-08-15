@@ -3,6 +3,7 @@ defmodule Melib.ExifTest do
   import Melib.Exif
 
   @data File.read!(Path.join(__DIR__, "../fixtures/img/for_exif/pp_editors.jpg"))
+
   @test_exif %{
     :brightness_value => 7.084,
     :color_space => "sRGB",
@@ -42,6 +43,11 @@ defmodule Melib.ExifTest do
 
   test "looks for jpeg marker" do
     assert {:error, :not_a_jpeg_file} = exif_from_jpeg_buffer("wombat")
+  end
+
+  test "correctly reports with bug exif" do
+    bug_exif = Path.join(__DIR__, "../fixtures/img/for_exif/bug_exif.jpg")
+    assert {:error, :read_fail_in_jpeg} = exif_from_jpeg_file(bug_exif)
   end
 
   test "correctly reports no exif" do
