@@ -49,6 +49,7 @@ defmodule Melib.Exif do
       case byte_order do
         0x4949 -> :little
         0x4D4D -> :big
+        _ -> :little
       end
 
     read_unsigned = fn value -> :binary.decode_unsigned(value, endian) end
