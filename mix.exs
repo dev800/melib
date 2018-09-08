@@ -5,7 +5,7 @@ defmodule Melib.Mixfile do
     [
       app: :melib,
       name: "Melib",
-      version: "0.1.4",
+      version: "0.1.5",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -30,6 +30,7 @@ defmodule Melib.Mixfile do
 
   defp deps do
     [
+      {:jason, "~> 1.0"},
       {:qrcode, "~> 0.0"},
       {:mime, "~> 1.2"},
       {:timex, "~> 3.0"},

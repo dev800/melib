@@ -12,12 +12,11 @@ defmodule Melib.Exif.Tag do
 
   # ascii string, size = 1
   def value(2, count, value, context) do
-    {exif, offset, ru} = context
+    {exif, _offset, ru} = context
     # ignore null-byte at end
     length = count - 1
 
     if count > 4 do
-      # + offset
       offset = ru.(value)
       <<_::binary-size(offset), string::binary-size(length), _::binary>> = exif
       string
@@ -42,37 +41,37 @@ defmodule Melib.Exif.Tag do
     decode_ratio(value, count, 8, context)
   end
 
-  # 
+  #
   # def value(6, count, value, rest, ru) do  # signed byte, size = 1
-  #   # size 1                            
+  #   # size 1
   # end
-  # 
+  #
   # undefined, size = 1
   def value(7, count, value, context) do
     decode_numeric(value, count, 1, context)
   end
 
-  # 
+  #
   # def value(8, count, value, rest, ru) do  # signed short, size = 2
-  #   # size 1                            
+  #   # size 1
   # end
-  # 
+  #
   # def value(9, count, value, rest, ru) do  # signed long, size = 4
-  #   # size 1                            
+  #   # size 1
   # end
-  # 
+  #
   # signed rational, size = 8
   def value(10, count, value, context) do
     decode_ratio(value, count, 8, context, :signed)
   end
 
-  # 
+  #
   # def value(11, count, value, rest, ru) do  # single float, size = 4
-  #   # size 1                            
+  #   # size 1
   # end
-  # 
+  #
   # def value(12, count, value, rest, ru) do  # double float, size = 4
-  #   # size 1                            
+  #   # size 1
   # end
 
   # Handle malformed tags

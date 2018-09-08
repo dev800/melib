@@ -88,7 +88,7 @@ defmodule Melib.IdentifyTest do
                  :x_resolution => 72,
                  :y_resolution => 72
                },
-               "tiff tag(0x213)" => "1"
+               :"tiff tag(0x213)" => "1"
              }
     end
 

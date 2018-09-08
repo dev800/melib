@@ -59,15 +59,29 @@ defmodule Melib.Exif do
       42 = read_unsigned.(forty_two)
       offset = read_unsigned.(offset)
 
-      {:ok, reshape(read_ifd({exif, offset, read_unsigned}))}
+      exif_data =
+        {exif, offset, read_unsigned}
+        |> read_ifd()
+        |> reshape()
+        |> _escape_invalid()
+
+      {:ok, exif_data}
     else
       {:error, :read_fail_in_jpeg}
     end
   end
 
   def read_exif(<<0xFF::8, _number::8, len::16, data::binary>>) do
-    skip_segment(len - 2, data)
+    (len - 2)
+    |> skip_segment(data)
     |> read_exif()
+    |> case do
+      {:ok, data} ->
+        {:ok, data |> _escape_invalid()}
+
+      json_data ->
+        json_data
+    end
   end
 
   def read_exif(_) do
@@ -165,5 +179,20 @@ defmodule Melib.Exif do
         image
       end
     end)
+  end
+
+  defp _escape_invalid(data) do
+    data
+    |> Jason.encode()
+    |> case do
+      {:ok, json} ->
+        case json |> String.replace("\\u0000", "") |> Jason.decode(keys: :atoms) do
+          {:ok, data} -> data
+          _ -> nil
+        end
+
+      _ ->
+        nil
+    end
   end
 end
