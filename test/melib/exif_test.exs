@@ -46,6 +46,11 @@ defmodule Melib.ExifTest do
     assert {:ok, _exif} = exif_from_jpeg_file(file_path)
   end
 
+  test "invalid exif2" do
+    file_path = Path.join(__DIR__, "../fixtures/img/for_exif/invalid_exif2.jpg")
+    assert {:ok, _exif} = exif_from_jpeg_file(file_path)
+  end
+
   test "looks for jpeg marker" do
     assert {:error, :not_a_jpeg_file} = exif_from_jpeg_buffer("wombat")
   end

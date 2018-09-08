@@ -18,11 +18,22 @@ defmodule Melib.Exif.Tag do
 
     if count > 4 do
       offset = ru.(value)
-      <<_::binary-size(offset), string::binary-size(length), _::binary>> = exif
-      string
+
+      case exif do
+        <<_::binary-size(offset), string::binary-size(length), _::binary>> ->
+          string
+
+        _ ->
+          nil
+      end
     else
-      <<string::binary-size(length), _::binary>> = value
-      string
+      case value do
+        <<string::binary-size(length), _::binary>> ->
+          string
+
+        _ ->
+          nil
+      end
     end
   end
 
