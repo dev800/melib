@@ -44,7 +44,7 @@ defmodule Melib.Identify do
         media = data |> parse_verbose(file_path, :image, opts)
 
         if Keyword.get(opts, :verbose, true) do
-          media |> Melib.Mogrify.verbose
+          media |> Melib.Mogrify.verbose()
         else
           media
         end
@@ -201,7 +201,6 @@ defmodule Melib.Identify do
 
     frame_count =
       if data[:mime_type] == "image/gif" do
-
       else
         1
       end

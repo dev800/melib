@@ -119,16 +119,23 @@ defmodule Melib.Exif do
     format = ru.(format)
     component_count = ru.(component_count)
     value = Tag.value(format, component_count, value, context)
-    {name, description} = Decode.tag(type, tag, value)
 
-    kv =
-      case name do
-        :exif -> {:exif, read_exif(value, context)}
-        :gps -> {:gps, read_gps(value, context)}
-        _ -> {name, description}
-      end
+    type
+    |> Decode.tag(tag, value)
+    |> case do
+      {name, description} ->
+        kv =
+          case name do
+            :exif -> {:exif, read_exif(value, context)}
+            :gps -> {:gps, read_gps(value, context)}
+            _ -> {name, description}
+          end
 
-    read_tags(count - 1, rest, context, type, [kv | exif])
+        read_tags(count - 1, rest, context, type, [kv | exif])
+
+      _ ->
+        Enum.into(exif, %{})
+    end
   end
 
   # Handle malformed data
