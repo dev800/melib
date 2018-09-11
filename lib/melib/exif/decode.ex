@@ -248,6 +248,7 @@ defmodule Melib.Exif.Decode do
   defp flash(0x59), do: "Auto, Fired, Red-eye reduction"
   defp flash(0x5D), do: "Auto, Fired, Red-eye reduction, Return not detected"
   defp flash(0x5F), do: "Auto, Fired, Red-eye reduction, Return detected"
+  defp flash(_), do: flash(0x0)
 
   defp version([?0, major, minor1, minor2]) do
     <<major, ?., minor1, minor2>>
