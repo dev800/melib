@@ -160,14 +160,14 @@ defmodule Melib.Exif.Decode do
   defp color_space(0xFFFD), do: "Wide Gamut RGB"
   defp color_space(0xFFFE), do: "ICC Profile"
   defp color_space(0xFFFF), do: "Uncalibrated"
-  defp color_space(_), do: "Uncalibrated"
+  defp color_space(_), do: "Unknown"
 
   defp focal_plane_resolution_unit(1), do: "None"
   defp focal_plane_resolution_unit(2), do: "inches"
   defp focal_plane_resolution_unit(3), do: "cm"
   defp focal_plane_resolution_unit(4), do: "mm"
   defp focal_plane_resolution_unit(5), do: "um"
-  defp focal_plane_resolution_unit(_), do: "None"
+  defp focal_plane_resolution_unit(_), do: "Unknown"
 
   defp sensing_method(1), do: "Not defined"
   defp sensing_method(2), do: "One-chip color area"
@@ -189,41 +189,50 @@ defmodule Melib.Exif.Decode do
   defp custom_rendered(v) when is_number(v), do: "Unknown (#{v})"
 
   defp scene_type(1), do: "Directly photographed"
+  defp scene_type(_), do: "Unknown"
 
   defp exposure_mode(0), do: "Auto"
   defp exposure_mode(1), do: "Manual"
   defp exposure_mode(2), do: "Auto bracket"
+  defp exposure_mode(_), do: "Unknown"
 
   defp white_balance(0), do: "Auto"
   defp white_balance(1), do: "Manual"
+  defp white_balance(_), do: "Unknown"
 
   defp scene_capture_type(0), do: "Standard"
   defp scene_capture_type(1), do: "Landscape"
   defp scene_capture_type(2), do: "Portrait"
   defp scene_capture_type(3), do: "Night"
+  defp scene_capture_type(_), do: "Unknown"
 
   defp gain_control(0), do: "None"
   defp gain_control(1), do: "Low gain up"
   defp gain_control(2), do: "High gain up"
   defp gain_control(3), do: "Low gain down"
   defp gain_control(4), do: "High gain down"
+  defp gain_control(_), do: "Unknown"
 
   defp contrast(0), do: "Normal"
   defp contrast(1), do: "Low"
   defp contrast(2), do: "High"
+  defp contrast(_), do: "Unknown"
 
   defp saturation(0), do: "Normal"
   defp saturation(1), do: "Low"
   defp saturation(2), do: "High"
+  defp saturation(_), do: "Unknown"
 
   defp sharpness(0), do: "Normal"
   defp sharpness(1), do: "Soft"
   defp sharpness(2), do: "Hard"
+  defp sharpness(_), do: "Unknown"
 
   defp subject_distance_range(0), do: "Unknown"
   defp subject_distance_range(1), do: "Macro"
   defp subject_distance_range(2), do: "Close"
   defp subject_distance_range(3), do: "Distant"
+  defp subject_distance_range(_), do: "Unknown"
 
   defp flash(0x0), do: "No Flash"
   defp flash(0x1), do: "Fired"
