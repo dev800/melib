@@ -160,12 +160,14 @@ defmodule Melib.Exif.Decode do
   defp color_space(0xFFFD), do: "Wide Gamut RGB"
   defp color_space(0xFFFE), do: "ICC Profile"
   defp color_space(0xFFFF), do: "Uncalibrated"
+  defp color_space(_), do: "Uncalibrated"
 
   defp focal_plane_resolution_unit(1), do: "None"
   defp focal_plane_resolution_unit(2), do: "inches"
   defp focal_plane_resolution_unit(3), do: "cm"
   defp focal_plane_resolution_unit(4), do: "mm"
   defp focal_plane_resolution_unit(5), do: "um"
+  defp focal_plane_resolution_unit(_), do: "None"
 
   defp sensing_method(1), do: "Not defined"
   defp sensing_method(2), do: "One-chip color area"
@@ -174,11 +176,13 @@ defmodule Melib.Exif.Decode do
   defp sensing_method(5), do: "Color sequential area"
   defp sensing_method(7), do: "Trilinear"
   defp sensing_method(8), do: "Color sequential linear"
+  defp sensing_method(_), do: "Not defined"
 
   defp file_source(1), do: "Film Scanner"
   defp file_source(2), do: "Reflection Print Scanner"
   defp file_source(3), do: "Digital Camera"
   defp file_source(0x03000000), do: "Sigma Digital Camera"
+  defp file_source(_), do: "None"
 
   defp custom_rendered(0), do: "Normal"
   defp custom_rendered(1), do: "Custom"
