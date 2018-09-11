@@ -88,6 +88,7 @@ defmodule Melib.Exif.Decode do
   def tag(_, 0xA433, value), do: {:lens_make, value}
   def tag(_, 0xA434, value), do: {:lens_model, value}
   def tag(_, 0xA435, value), do: {:lens_serial_number, value}
+  def tag(_, _, _), do: nil
 
   # http://www.sno.phy.queensu.ca/~phil/exiftool/TagNames/GPS.html
   Melib.Exif.Data.Gps.fields()
@@ -257,4 +258,6 @@ defmodule Melib.Exif.Decode do
   defp version([major1, major2, minor1, minor2]) do
     <<major1, major2, ?., minor1, minor2>>
   end
+
+  defp version(_), do: nil
 end
