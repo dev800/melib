@@ -110,10 +110,12 @@ defmodule Melib.Exif.Decode do
   defp orientation(6), do: "Rotate 90 CW"
   defp orientation(7), do: "Mirror horizontal and rotate 90 CW"
   defp orientation(8), do: "Rotate 270 CW"
+  defp orientation(_), do: "Unknown"
 
   defp resolution(1), do: "None"
   defp resolution(2), do: "Pixels/in"
   defp resolution(3), do: "Pixels/cm"
+  defp resolution(_), do: "Unknown"
 
   defp exposure_program(0), do: "Unknown"
   defp exposure_program(1), do: "Manual"
@@ -125,6 +127,7 @@ defmodule Melib.Exif.Decode do
   defp exposure_program(7), do: "Portrait"
   defp exposure_program(8), do: "Landscape"
   defp exposure_program(9), do: "Bulb"
+  defp exposure_program(_), do: "Unknown"
 
   defp sensitivity_type(0), do: "Unknown"
   defp sensitivity_type(1), do: "Standard Output Sensitivity"
@@ -136,6 +139,8 @@ defmodule Melib.Exif.Decode do
 
   defp sensitivity_type(7),
     do: "Standard Output Sensitivity, Recommended Exposure Index and ISO Speed"
+
+  defp sensitivity_type(_), do: "Unknown"
 
   @comp_conf {"-", "Y", "Cb", "Cr", "R", "G", "B"}
 
