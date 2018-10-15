@@ -4,6 +4,14 @@ defmodule Melib.IdentifyTest do
 
   use ExUnit.Case, async: true
 
+  # 逆时针旋转90度
+  @rotate_jpg_1 Path.join(__DIR__, "../fixtures/img/for_exif/Rotate_1.jpg")
+  # 正常
+  @rotate_jpg_2 Path.join(__DIR__, "../fixtures/img/for_exif/Rotate_2.jpg")
+  # 顺时针旋转90度
+  @rotate_jpg_3 Path.join(__DIR__, "../fixtures/img/for_exif/Rotate_3.jpg")
+  # 旋转180度
+  @rotate_jpg_4 Path.join(__DIR__, "../fixtures/img/for_exif/Rotate_4.jpg")
   @fixture Path.join(__DIR__, "../fixtures/img/bender.jpg")
   @gif_fixture Path.join(__DIR__, "../fixtures/img/bender_anim.gif")
   @fixture_from_iphone Path.join(__DIR__, "../fixtures/img/from_iphone.jpg")
@@ -11,6 +19,46 @@ defmodule Melib.IdentifyTest do
   @fixture_incorrect_sbit Path.join(__DIR__, "../fixtures/img/Incorrect_sBIT.jpg")
 
   describe "identify" do
+    test "rotate_jpg_1" do
+      media =
+        @rotate_jpg_1
+        |> Mogrify.open()
+        |> Identify.put_width_and_height()
+
+      assert media.height == 4032
+      assert media.width == 3024
+    end
+
+    test "rotate_jpg_2" do
+      media =
+        @rotate_jpg_2
+        |> Mogrify.open()
+        |> Identify.put_width_and_height()
+
+      assert media.width == 4032
+      assert media.height == 3024
+    end
+
+    test "rotate_jpg_3" do
+      media =
+        @rotate_jpg_3
+        |> Mogrify.open()
+        |> Identify.put_width_and_height()
+
+      assert media.height == 4032
+      assert media.width == 3024
+    end
+
+    test "rotate_jpg_4" do
+      media =
+        @rotate_jpg_4
+        |> Mogrify.open()
+        |> Identify.put_width_and_height()
+
+      assert media.width == 4032
+      assert media.height == 3024
+    end
+
     test "mime_type" do
       mime_type =
         @fixture
@@ -123,7 +171,7 @@ defmodule Melib.IdentifyTest do
                dirty: %{},
                exif: %{},
                ext: ".jpg",
-               file: nil,
+               file: _file,
                filename: "bender.jpg",
                format: "jpeg",
                frame_count: 1,

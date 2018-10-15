@@ -1,5 +1,4 @@
 defmodule Melib.Config do
-
   @fonts Application.get_env(:melib, :fonts, %{})
 
   def get_font(path) when is_binary(path), do: Path.expand(path)
@@ -15,5 +14,4 @@ defmodule Melib.Config do
       |> Path.expand()
     end
   end
-
 end

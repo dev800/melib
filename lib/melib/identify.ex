@@ -117,9 +117,9 @@ defmodule Melib.Identify do
   def put_exif(nil), do: nil
 
   def put_exif(%Image{} = image) do
-    image = image |> put_file
-
     if image.format in ~w(jpg jpeg) do
+      image = image |> put_file
+
       case Melib.Exif.exif_from_jpeg_buffer(image.file) do
         {:ok, exif} -> Map.put(image, :exif, exif)
         _ -> image
@@ -158,8 +158,18 @@ defmodule Melib.Identify do
   def put_width_and_height(nil, _force), do: nil
 
   def put_width_and_height(%Image{} = image, force) do
+    image = image |> put_exif()
+
     if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
       %{height: height, width: width} = get_width_and_height(image.path, :image)
+
+      {width, height} =
+        _parse_width_and_height(
+          width,
+          height,
+          get_in(image.exif || %{}, [:tiff, :orientation])
+        )
+
       %{image | height: height, width: width}
     else
       image
@@ -169,6 +179,16 @@ defmodule Melib.Identify do
   def put_width_and_height(%Attachment{} = attachment, _force) do
     attachment
   end
+
+  def _parse_width_and_height(w, h, "Horizontal (normal)"), do: {w, h}
+  def _parse_width_and_height(w, h, "Mirror horizontal"), do: {w, h}
+  def _parse_width_and_height(w, h, "Rotate 180"), do: {w, h}
+  def _parse_width_and_height(w, h, "Mirror vertical"), do: {w, h}
+  def _parse_width_and_height(w, h, "Mirror horizontal and rotate 270 CW"), do: {h, w}
+  def _parse_width_and_height(w, h, "Rotate 90 CW"), do: {h, w}
+  def _parse_width_and_height(w, h, "Mirror horizontal and rotate 90 CW"), do: {h, w}
+  def _parse_width_and_height(w, h, "Rotate 270 CW"), do: {h, w}
+  def _parse_width_and_height(w, h, _), do: {w, h}
 
   def fix_sbit(media), do: media
 
@@ -229,7 +249,7 @@ defmodule Melib.Identify do
   def get_width_and_height(file_path, :image) do
     case Melib.ImageMagick.run(
            "identify",
-           ["-format", "%m:%w:%h", file_path <> "[0]"],
+           ["-format", "%m:%w:%h", file_path <> "[0]", "-strip"],
            stderr_to_stdout: true
          ) do
       {rows_text, 0} ->
