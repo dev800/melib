@@ -106,7 +106,9 @@ defmodule Melib.Mogrify do
       end
     end
 
-    image_after_command(image, output_path)
+    image
+    |> image_after_command(output_path)
+    |> Map.put(:verbosed, false)
   end
 
   defp hex_random(n) do
@@ -418,18 +420,21 @@ defmodule Melib.Mogrify do
   @doc """
   Provides detailed information about the image
   """
-  def verbose(%Melib.Image{} = image) do
+  def verbose(%Melib.Image{verbosed: false} = image) do
     args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
     {output, 0} = Melib.ImageMagick.run("mogrify", args, stderr_to_stdout: true)
 
     info =
-      ~r/\b(?<animated>\[0])? (?<format>\S+) (?<width>\d+)x(?<height>\d+)/
+      ~r/\b(?<animated>\[0])? (?<format>\S+)/
       |> Regex.named_captures(output)
       |> Enum.map(&normalize_verbose_term/1)
       |> Enum.into(%{})
       |> put_frame_count(output)
 
-    Map.merge(image, info)
+    image
+    |> Map.merge(info)
+    |> Identify.put_width_and_height()
+    |> Map.put(:verbosed, true)
   end
 
   def verbose(attachment), do: attachment

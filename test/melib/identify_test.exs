@@ -20,40 +20,28 @@ defmodule Melib.IdentifyTest do
 
   describe "identify" do
     test "rotate_jpg_1" do
-      media =
-        @rotate_jpg_1
-        |> Mogrify.open()
-        |> Identify.put_width_and_height()
+      media = @rotate_jpg_1 |> Identify.identify()
 
       assert media.height == 4032
       assert media.width == 3024
     end
 
     test "rotate_jpg_2" do
-      media =
-        @rotate_jpg_2
-        |> Mogrify.open()
-        |> Identify.put_width_and_height()
+      media = @rotate_jpg_2 |> Identify.identify()
 
       assert media.width == 4032
       assert media.height == 3024
     end
 
     test "rotate_jpg_3" do
-      media =
-        @rotate_jpg_3
-        |> Mogrify.open()
-        |> Identify.put_width_and_height()
+      media = @rotate_jpg_3 |> Identify.identify()
 
       assert media.height == 4032
       assert media.width == 3024
     end
 
     test "rotate_jpg_4" do
-      media =
-        @rotate_jpg_4
-        |> Mogrify.open()
-        |> Identify.put_width_and_height()
+      media = @rotate_jpg_4 |> Identify.identify()
 
       assert media.width == 4032
       assert media.height == 3024

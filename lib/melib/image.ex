@@ -20,6 +20,7 @@ defmodule Melib.Image do
   @type dirty :: %{atom => any}
   @type exif :: %{atom => any}
   @type file :: binary
+  @type verbosed :: boolean
 
   @type t :: %__MODULE__{
           size: size,
@@ -42,7 +43,8 @@ defmodule Melib.Image do
           operations: operations,
           dirty: dirty,
           exif: exif,
-          file: file
+          file: file,
+          verbosed: verbosed
         }
 
   defstruct path: nil,
@@ -65,5 +67,6 @@ defmodule Melib.Image do
             operations: [],
             exif: %{},
             dirty: %{},
-            file: nil
+            file: nil,
+            verbosed: false
 end

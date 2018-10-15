@@ -52,6 +52,7 @@ defmodule Melib.Identify do
       _ ->
         data |> parse_verbose(file_path, :attachment, opts)
     end
+    |> Map.put(:verbosed, false)
   end
 
   def put_file(nil), do: nil
@@ -161,7 +162,7 @@ defmodule Melib.Identify do
     image = image |> put_exif()
 
     if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
-      %{height: height, width: width} = get_width_and_height(image.path, :image)
+      %{height: height, width: width} = _identify_width_and_height(image.path, :image)
 
       {width, height} =
         _parse_width_and_height(
@@ -197,7 +198,7 @@ defmodule Melib.Identify do
   def parse_verbose(data, file_path, :attachment, opts) do
     filename = file_path |> Path.basename()
 
-    attachment = %Attachment{
+    %Attachment{
       ext: data[:ext],
       mime_type: data[:mime_type],
       postfix: data[:postfix],
@@ -208,25 +209,21 @@ defmodule Melib.Identify do
       operations: [],
       dirty: %{}
     }
-
-    attachment = if opts[:md5], do: put_md5(attachment), else: attachment
-    attachment = if opts[:sha256], do: put_sha256(attachment), else: attachment
-    attachment = if opts[:sha512], do: put_sha512(attachment), else: attachment
-
-    attachment
+    |> Melib.if_call(opts[:md5], fn media ->
+      put_md5(media)
+    end)
+    |> Melib.if_call(opts[:sha256], fn media ->
+      put_sha256(media)
+    end)
+    |> Melib.if_call(opts[:sha512], fn media ->
+      put_sha512(media)
+    end)
   end
 
   def parse_verbose(data, file_path, :image, opts) do
     filename = file_path |> Path.basename()
 
-    frame_count =
-      if data[:mime_type] == "image/gif" do
-      else
-        1
-      end
-
-    image = %Image{
-      frame_count: frame_count,
+    %Image{
       animated: data[:animated],
       ext: data[:ext],
       format: data[:format],
@@ -239,17 +236,22 @@ defmodule Melib.Identify do
       dirty: %{},
       exif: %{}
     }
-
-    image = if opts[:md5], do: put_md5(image), else: image
-    image = if opts[:sha256], do: put_sha256(image), else: image
-    image = if opts[:sha512], do: put_sha512(image), else: image
-    image |> fix_sbit
+    |> Melib.if_call(opts[:md5], fn media ->
+      put_md5(media)
+    end)
+    |> Melib.if_call(opts[:sha256], fn media ->
+      put_sha256(media)
+    end)
+    |> Melib.if_call(opts[:sha512], fn media ->
+      put_sha512(media)
+    end)
+    |> fix_sbit
   end
 
-  def get_width_and_height(file_path, :image) do
+  defp _identify_width_and_height(file_path, :image) do
     case Melib.ImageMagick.run(
            "identify",
-           ["-format", "%m:%w:%h", file_path <> "[0]", "-strip"],
+           ["-format", "%m:%w:%h", file_path <> "[0]"],
            stderr_to_stdout: true
          ) do
       {rows_text, 0} ->
@@ -260,11 +262,11 @@ defmodule Melib.Identify do
         %{width: width, height: height}
 
       {error_message, 1} ->
-        raise Melib.VerboseError, message: "#{__MODULE__}.verbose -> #{error_message}"
+        raise Melib.VerboseError, message: "#{__MODULE__}._identify_width_and_height -> #{error_message}"
     end
   end
 
-  def get_width_and_height(_file_path, :attachment) do
+  defp _identify_width_and_height(_file_path, :attachment) do
     %{}
   end
 

@@ -15,6 +15,7 @@ defmodule Melib.Attachment do
   @type dirty :: %{atom => any}
   @type filename :: binary
   @type file :: binary
+  @type verbosed :: binary
 
   @type t :: %__MODULE__{
           size: size,
@@ -32,7 +33,8 @@ defmodule Melib.Attachment do
           operations: operations,
           dirty: dirty,
           filename: filename,
-          file: file
+          file: file,
+          verbosed: verbosed
         }
 
   defstruct path: nil,
@@ -50,5 +52,6 @@ defmodule Melib.Attachment do
             operations: [],
             dirty: %{},
             filename: nil,
-            file: nil
+            file: nil,
+            verbosed: false
 end
