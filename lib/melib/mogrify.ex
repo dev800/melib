@@ -234,7 +234,7 @@ defmodule Melib.Mogrify do
       |> Keyword.put(:layers, "OptimizePlus")
       |> Keyword.put(:delay, "#{25 * speed}x#{25 * length(sources)}")
       |> Keyword.put(:gif_src, "#{tmp_path}_*")
-      |> _create_gif
+      |> _create_gif()
 
     tmp_file_paths |> Enum.each(fn path -> File.rm!(path) end)
 
@@ -529,7 +529,14 @@ defmodule Melib.Mogrify do
   """
   def resize_to_fill(image, params) do
     [_, width, height] = Regex.run(~r/(\d+)x(\d+)/, params)
-    image = Melib.Mogrify.verbose(image)
+
+    image =
+      if image.width && image.height do
+        image
+      else
+        Melib.Mogrify.verbose(image)
+      end
+
     {width, _} = Float.parse(width)
     {height, _} = Float.parse(height)
     cols = image.width

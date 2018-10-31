@@ -8,13 +8,14 @@ defmodule Melib.Captcha do
   生成验证码
 
   控制参数：
-  * `size`-验证码图片大小，默认值：`100x40`，宽100，高40
-  * `font`-验证码字体名，需要在配置文件中配置字体名和字体文件绝对路径的映射，例如`jdjste: "path/to/JDJSTE.TTF"`
-  * `font_width`-验证码内容文字加粗，默认值：1
-  * `bezier_width`-干扰线加粗, 默认值：2
-  * `label`-验证码内容
-  * `pointsize`-字体大小，默认为20
-  * `noise`-增加噪点，可选样式：
+  * `size` - 验证码图片大小，默认值：`100x40`，宽100，高40
+  * `font` - 验证码字体名，需要在配置文件中配置字体名和字体文件绝对路径的映射，例如`jdjste: "path/to/JDJSTE.TTF"`
+  * `font_width` - 验证码内容文字加粗，默认值：1
+  * `bezier_width` - 干扰线加粗, 默认值：2
+  * `bezier` - 干扰线条数, 默认值：3
+  * `label` - 验证码内容
+  * `pointsize` - 字体大小，默认为20
+  * `noise` - 增加噪点，可选样式：
   `Gaussian`、`Impulse`、`Laplacian`、`Multiplicative`、`Poisson`、`Uniform`，
   默认为`Uniform`无噪点
   """
@@ -37,11 +38,11 @@ defmodule Melib.Captcha do
       |> _append_params(:font, Config.get_font(opts[:font] || :default))
       |> _append_params(:gravity, "NorthWest")
       |> _append_params(:strokewidth, "#{opts[:font_width] || 1}")
-      |> append_label(opts)
+      |> _append_label(opts)
       |> _append_params(:strokewidth, "#{opts[:bezier_width] || 2}")
       |> _append_params(:stroke, random_rgba())
       |> _append_params(:fill, "rgba(0, 0, 0, 0)")
-      |> gen_bezier()
+      |> _gen_bezier(opts[:bezier] || 3)
 
     params = params ++ ["+noise", opts[:noise] || "Uniform"] ++ [path]
 
@@ -58,16 +59,14 @@ defmodule Melib.Captcha do
     "rgba(#{Enum.random(0..255)}, #{Enum.random(0..255)}, #{Enum.random(0..255)}, 0.3)"
   end
 
-  def gen_bezier(params) do
-    # 指定干扰线条数，但不能保证所有线一定都在图片上，干扰线位置由函数计算结果而定
-    _gen_bezier(params, 3)
-  end
-
+  # 指定干扰线条数，但不能保证所有线一定都在图片上，干扰线位置由函数计算结果而定
   defp _gen_bezier(params, 0), do: params
 
   defp _gen_bezier(params, index) do
     bezier = "bezier #{random_coor()} #{random_coor()} #{random_coor()} #{random_coor()}"
-    _append_params(params, :draw, bezier)
+
+    params
+    |> _append_params(:draw, bezier)
     |> _gen_bezier(index - 1)
   end
 
@@ -79,7 +78,7 @@ defmodule Melib.Captcha do
     params ++ ["-#{key}", value]
   end
 
-  def append_label(params, opts) do
+  defp _append_label(params, opts) do
     chars =
       (opts[:label] || "")
       |> String.split("", trim: true)
