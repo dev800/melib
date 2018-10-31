@@ -6,9 +6,9 @@ defmodule Melib.Convert do
   def convert(source, opts \\ [])
 
   def convert({:file, file}, opts) do
-    Melib.Mogrify.generate_temp_path()
-    |> File.write!(file)
-    |> convert(opts)
+    path = Melib.Mogrify.generate_temp_path()
+    path |> File.write!(file)
+    {:path, path} |> convert(opts)
   end
 
   def convert({:path, path}, opts) do
