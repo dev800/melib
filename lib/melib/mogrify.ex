@@ -421,49 +421,26 @@ defmodule Melib.Mogrify do
   Provides detailed information about the image
   """
   def verbose(%Melib.Image{verbosed: false} = image) do
-    args = ~w(-verbose -write #{dev_null()}) ++ [image.path]
-    {output, 0} = Melib.ImageMagick.run("mogrify", args, stderr_to_stdout: true)
-
-    info =
-      ~r/\b(?<animated>\[0])? (?<format>\S+)/
-      |> Regex.named_captures(output)
-      |> Enum.map(&normalize_verbose_term/1)
-      |> Enum.into(%{})
-      |> put_frame_count(output)
-
-    image
-    |> Map.merge(info)
-    |> Identify.put_width_and_height()
-    |> Map.put(:verbosed, true)
+    image |> Identify.verbose()
   end
 
   def verbose(attachment), do: attachment
 
-  defp dev_null do
+  def dev_null do
     case :os.type() do
       {:win32, _} -> "NUL"
       _ -> "/dev/null"
     end
   end
 
-  defp normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
-  defp normalize_verbose_term({"animated", ""}), do: {:animated, false}
+  def normalize_verbose_term({"animated", "[0]"}), do: {:animated, true}
+  def normalize_verbose_term({"animated", ""}), do: {:animated, false}
 
-  defp normalize_verbose_term({key, value}) when key in ["width", "height"] do
+  def normalize_verbose_term({key, value}) when key in ["width", "height"] do
     {String.to_atom(key), String.to_integer(value)}
   end
 
-  defp normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
-
-  defp put_frame_count(%{animated: false} = map, _), do: Map.put(map, :frame_count, 1)
-
-  defp put_frame_count(map, text) do
-    # skip the [0] lines which may be duplicated
-    matches = Regex.scan(~r/\b\[[1-9][0-9]*] \S+ \d+x\d+/, text)
-    # add 1 for the skipped [0] frame
-    frame_count = length(matches) + 1
-    Map.put(map, :frame_count, frame_count)
-  end
+  def normalize_verbose_term({key, value}), do: {String.to_atom(key), String.downcase(value)}
 
   @doc """
   Converts the image to the image format you specify
@@ -585,7 +562,7 @@ defmodule Melib.Mogrify do
   * min_width
   """
   def watermark(image, watermark, opts \\ []) do
-    image = image |> Identify.put_width_and_height()
+    image = image |> Identify.verbose()
     operations = image.operations
     height_valid = !opts[:min_height] or !image.height or image.height >= opts[:min_height]
     width_valid = !opts[:min_width] or !image.width or image.width >= opts[:min_width]

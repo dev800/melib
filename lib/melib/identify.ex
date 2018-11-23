@@ -44,7 +44,7 @@ defmodule Melib.Identify do
         media = data |> parse_verbose(file_path, :image, opts)
 
         if Keyword.get(opts, :verbose, true) do
-          media |> Melib.Mogrify.verbose()
+          media |> verbose()
         else
           media
         end
@@ -155,14 +155,14 @@ defmodule Melib.Identify do
     |> Map.put(:animated, animated)
   end
 
-  def put_width_and_height(media), do: put_width_and_height(media, false)
-  def put_width_and_height(nil, _force), do: nil
+  def verbose(media, force \\ false)
+  def verbose(nil, _force), do: nil
 
-  def put_width_and_height(%Image{} = image, force) do
+  def verbose(%Image{} = image, force) do
     image = image |> put_exif()
 
     if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
-      %{height: height, width: width} = _identify_width_and_height(image.path, :image)
+      %{height: height, width: width, frame_count: frame_count} = _identify(image.path, :image)
 
       {width, height} =
         _parse_width_and_height(
@@ -171,15 +171,18 @@ defmodule Melib.Identify do
           get_in(image.exif || %{}, [:tiff, :orientation])
         )
 
-      %{image | height: height, width: width}
+      %{image | height: height, width: width, frame_count: frame_count}
     else
       image
     end
+    |> Map.put(:verbosed, true)
   end
 
-  def put_width_and_height(%Attachment{} = attachment, _force) do
+  def verbose(%Attachment{} = attachment, _force) do
     attachment
   end
+
+  defdelegate put_width_and_height(attachment, force \\ false), to: __MODULE__, as: :verbose
 
   def _parse_width_and_height(w, h, "Horizontal (normal)"), do: {w, h}
   def _parse_width_and_height(w, h, "Mirror horizontal"), do: {w, h}
@@ -248,25 +251,39 @@ defmodule Melib.Identify do
     |> fix_sbit
   end
 
-  defp _identify_width_and_height(file_path, :image) do
+  defp _identify(file_path, :image) do
     case Melib.ImageMagick.run(
            "identify",
-           ["-format", "%m:%w:%h", file_path <> "[0]"],
+           ["-format", "%m:%W:%H:%w:%h\n", file_path],
            stderr_to_stdout: true
          ) do
       {rows_text, 0} ->
-        info = rows_text |> String.split(":") |> Enum.map(fn i -> String.trim(i) end)
-        width = info |> Enum.at(-2) |> String.to_integer()
-        height = info |> Enum.at(-1) |> String.to_integer()
+        rows = rows_text |> String.split("\n", trim: true)
+        filtered_rows = rows |> Enum.filter(fn row -> Regex.match?(~r/\w+:\d+:\d+/, row) end)
 
-        %{width: width, height: height}
+        if filtered_rows |> Enum.any?() do
+          frame_count = filtered_rows |> length()
+
+          [_format, width, height | _] =
+            filtered_rows
+            |> List.last()
+            |> String.split(":", trim: true)
+
+          width = width |> String.to_integer()
+          height = height |> String.to_integer()
+          %{width: width, height: height, frame_count: frame_count}
+        else
+          raise Melib.VerboseError,
+            message: "#{__MODULE__}._identify -> #{rows_text}"
+        end
 
       {error_message, 1} ->
-        raise Melib.VerboseError, message: "#{__MODULE__}._identify_width_and_height -> #{error_message}"
+        raise Melib.VerboseError,
+          message: "#{__MODULE__}._identify -> #{error_message}"
     end
   end
 
-  defp _identify_width_and_height(_file_path, :attachment) do
+  defp _identify(_file_path, :attachment) do
     %{}
   end
 

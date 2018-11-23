@@ -161,7 +161,7 @@ defmodule Melib.IdentifyTest do
                ext: ".jpg",
                file: _file,
                filename: "bender.jpg",
-               format: "jpeg",
+               format: "jpg",
                frame_count: 1,
                height: 292,
                md5: nil,

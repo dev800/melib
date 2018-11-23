@@ -5,7 +5,7 @@ defmodule Melib.Mixfile do
     [
       app: :melib,
       name: "Melib",
-      version: "0.1.9",
+      version: "0.1.10",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),

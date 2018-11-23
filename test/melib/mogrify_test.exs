@@ -59,9 +59,9 @@ defmodule Melib.MogrifyTest do
 
       assert Map.take(image, [:width, :height, :frame_count, :mime_type]) == %{
                frame_count: 4,
-               height: 40,
+               height: 46,
                mime_type: "image/gif",
-               width: 69
+               width: 70
              }
     end
 
