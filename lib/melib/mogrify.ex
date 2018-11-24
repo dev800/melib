@@ -68,47 +68,36 @@ defmodule Melib.Mogrify do
   """
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
-
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
 
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
-
-      Melib.ImageMagick.run(
-        "mogrify",
-        arguments_for_saving(image, tmp_path),
-        stderr_to_stdout: true
-      )
-
-      if image.operations[:watermark] do
-        Melib.ImageMagick.run(
-          "composite",
-          arguments_for_watermark(image, tmp_path, opts),
-          stderr_to_stdout: true
-        )
-      end
-
+      _mogrify_save(image, tmp_path, opts)
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
-      Melib.ImageMagick.run(
-        "mogrify",
-        arguments_for_saving(image, output_path),
-        stderr_to_stdout: true
-      )
-
-      if image.operations[:watermark] do
-        Melib.ImageMagick.run(
-          "composite",
-          arguments_for_watermark(image, output_path, opts),
-          stderr_to_stdout: true
-        )
-      end
+      _mogrify_save(image, output_path, opts)
     end
 
     image
     |> image_after_command(output_path)
     |> Map.put(:verbosed, false)
+  end
+
+  defp _mogrify_save(image, output_path, opts) do
+    Melib.ImageMagick.run(
+      "mogrify",
+      arguments_for_saving(image, output_path),
+      stderr_to_stdout: true
+    )
+
+    if image.operations[:watermark] do
+      Melib.ImageMagick.run(
+        "composite",
+        arguments_for_watermark(image, output_path, opts),
+        stderr_to_stdout: true
+      )
+    end
   end
 
   defp hex_random(n) do
@@ -138,42 +127,33 @@ defmodule Melib.Mogrify do
     if File.exists?(image.path) do
       tmp_path = generate_temp_path()
       tmp_path |> Path.dirname() |> File.mkdir_p!()
-
-      Melib.ImageMagick.run(
-        "convert",
-        arguments_for_creating(image, tmp_path),
-        stderr_to_stdout: true
-      )
-
-      if image.operations[:watermark] do
-        Melib.ImageMagick.run(
-          "composite",
-          arguments_for_watermark(image, tmp_path, opts),
-          stderr_to_stdout: true
-        )
-      end
-
+      _mogrify_create(image, tmp_path, opts)
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
     else
       output_path |> Path.dirname() |> File.mkdir_p!()
-
-      Melib.ImageMagick.run(
-        "convert",
-        arguments_for_creating(image, output_path),
-        stderr_to_stdout: true
-      )
-
-      if image.operations[:watermark] do
-        Melib.ImageMagick.run(
-          "composite",
-          arguments_for_watermark(image, output_path, opts),
-          stderr_to_stdout: true
-        )
-      end
+      _mogrify_create(image, output_path, opts)
     end
 
-    image_after_command(image, output_path)
+    image
+    |> image_after_command(output_path)
+    |> Map.put(:verbosed, false)
+  end
+
+  defp _mogrify_create(image, output_path, opts) do
+    Melib.ImageMagick.run(
+      "convert",
+      arguments_for_creating(image, output_path),
+      stderr_to_stdout: true
+    )
+
+    if image.operations[:watermark] do
+      Melib.ImageMagick.run(
+        "composite",
+        arguments_for_watermark(image, output_path, opts),
+        stderr_to_stdout: true
+      )
+    end
   end
 
   ######### Begin set ########
@@ -308,6 +288,7 @@ defmodule Melib.Mogrify do
       image
       | path: output_path,
         ext: Path.extname(output_path),
+        file: File.read(output_path),
         format: format,
         postfix: postfix,
         operations: [],
