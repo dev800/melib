@@ -288,7 +288,7 @@ defmodule Melib.Mogrify do
       image
       | path: output_path,
         ext: Path.extname(output_path),
-        file: File.read(output_path),
+        file: File.read!(output_path),
         format: format,
         postfix: postfix,
         operations: [],
