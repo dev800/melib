@@ -288,6 +288,6 @@ defmodule Melib.Identify do
   end
 
   def get_size(file_path) do
-    file_path |> File.stat!() |> Map.get(:size)
+    file_path |> File.stat!() |> Melib.get(:size)
   end
 end

@@ -6,7 +6,7 @@ defmodule Melib.Config do
   def get_font(nil), do: get_font(:default)
 
   def get_font(name) when is_atom(name) do
-    if font = @fonts |> Map.get(name) do
+    if font = @fonts |> Melib.get(name) do
       font |> to_string |> get_font
     else
       :code.priv_dir(:melib)

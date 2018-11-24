@@ -48,14 +48,15 @@ defmodule Melib.MogrifyTest do
 
     test "gif create from sources" do
       image =
-        Mogrify.create_gif_from([
-          @gif_fixture_src |> Path.join("img_1.png"),
-          @gif_fixture_src |> Path.join("img_2.png"),
-          @gif_fixture_src |> Path.join("img_3.png"),
-          @gif_fixture_src |> Path.join("img_4.png")
-        ], [
+        Mogrify.create_gif_from(
+          [
+            @gif_fixture_src |> Path.join("img_1.png"),
+            @gif_fixture_src |> Path.join("img_2.png"),
+            @gif_fixture_src |> Path.join("img_3.png"),
+            @gif_fixture_src |> Path.join("img_4.png")
+          ],
           path: @fixture_tmp_folder <> "/gif_create2.gif"
-        ])
+        )
 
       assert Map.take(image, [:width, :height, :frame_count, :mime_type]) == %{
                frame_count: 4,
@@ -272,14 +273,14 @@ defmodule Melib.MogrifyTest do
       image = open(@fixture) |> copy
       tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
-      assert Regex.match?(~r(#{tmp_dir}#{slash}\d+-bender\.jpg), image.path)
+      assert Regex.match?(~r(#{tmp_dir}#{slash}\w+-bender\.jpg), image.path)
     end
 
     test ".copy when file name has spaces" do
       image = open(@fixture_with_space) |> copy
       tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
-      assert Regex.match?(~r(#{tmp_dir}#{slash}\d+-ben\sder\.jpg), image.path)
+      assert Regex.match?(~r(#{tmp_dir}#{slash}\w+-ben\sder\.jpg), image.path)
     end
 
     test ".verbose" do

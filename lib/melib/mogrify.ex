@@ -58,6 +58,17 @@ defmodule Melib.Mogrify do
     %Image{path: path} |> Identify.put_mime_type()
   end
 
+  defp _process_image_gif(image) do
+    format = image.format
+    dirty_format = image.dirty |> Melib.get(:format, format)
+
+      if format == "gif" && dirty_format != "gif" do
+        image |> gif_thumbnail()
+      else
+        image
+      end
+  end
+
   @doc """
   Saves modified image
 
@@ -69,9 +80,11 @@ defmodule Melib.Mogrify do
   def save(image, opts \\ []) do
     output_path = output_path_for(image, opts)
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
+    postfix = Melib.get(image.dirty, :postfix, image.postfix)
+    image = _process_image_gif(image)
 
-    if File.exists?(image.path) do
-      tmp_path = generate_temp_path()
+    if File.exists?(output_path) do
+      tmp_path = generate_temp_path(postfix)
       _mogrify_save(image, tmp_path, opts)
       File.cp!(tmp_path, output_path)
       File.rm!(tmp_path)
@@ -104,8 +117,8 @@ defmodule Melib.Mogrify do
     n |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
   end
 
-  def generate_temp_path do
-    System.tmp_dir() |> Path.join("melib-" <> hex_random(16))
+  def generate_temp_path(postfix \\ "") do
+    System.tmp_dir() |> Path.join("melib-" <> hex_random(16) <> "#{postfix}")
   end
 
   @doc """
@@ -121,11 +134,12 @@ defmodule Melib.Mogrify do
   """
   def create(image, opts \\ []) do
     output_path = output_path_for(image, opts)
-
     Melib.system_cmd("mkdir", ["-p", Path.dirname(output_path)])
+    postfix = Melib.get(image.dirty, :postfix, image.postfix)
+    image = _process_image_gif(image)
 
-    if File.exists?(image.path) do
-      tmp_path = generate_temp_path()
+    if File.exists?(output_path) do
+      tmp_path = generate_temp_path(postfix)
       tmp_path |> Path.dirname() |> File.mkdir_p!()
       _mogrify_create(image, tmp_path, opts)
       File.cp!(tmp_path, output_path)
@@ -232,7 +246,7 @@ defmodule Melib.Mogrify do
   defp _create_gif(image, opts) do
     image =
       image
-      |> set_path(opts[:path] || "#{generate_temp_path()}.gif")
+      |> set_path(opts[:path] || generate_temp_path(".gif"))
       |> set_gif_src(opts[:gif_src])
       |> set_layers(opts[:layers])
       |> set_delay(opts[:delay])
@@ -280,20 +294,10 @@ defmodule Melib.Mogrify do
     |> process_histogram_output
   end
 
-  defp image_after_command(image, output_path) do
-    format = Map.get(image.dirty, :format, image.format)
-    postfix = Map.get(image.dirty, :postfix, image.postfix)
-
-    %{
-      image
-      | path: output_path,
-        ext: Path.extname(output_path),
-        file: File.read!(output_path),
-        format: format,
-        postfix: postfix,
-        operations: [],
-        dirty: %{}
-    }
+  defp image_after_command(_image, output_path) do
+    output_path
+    |> Identify.identify()
+    |> Identify.verbose(true)
   end
 
   defp histogram_integerify(hist) do
@@ -384,18 +388,17 @@ defmodule Melib.Mogrify do
     Map.put(image, :path, temp)
   end
 
-  def temporary_path_for(%{dirty: %{path: dirty_path}} = _image) do
-    do_temporary_path_for(dirty_path)
+  def temporary_path_for(%{dirty: %{path: dirty_path, postfix: postfix}} = _image) do
+    _temporary_path_for(dirty_path, postfix)
   end
 
-  def temporary_path_for(%{path: path} = _image) do
-    do_temporary_path_for(path)
+  def temporary_path_for(%{path: path, postfix: postfix} = _image) do
+    _temporary_path_for(path, postfix)
   end
 
-  defp do_temporary_path_for(path) do
-    name = Path.basename(path)
-    random = Compat.rand_uniform(999_999)
-    Path.join(System.tmp_dir(), "#{random}-#{name}")
+  defp _temporary_path_for(path, postfix) do
+    tmp_path = System.tmp_dir() |> Path.join("#{hex_random(16)}-#{Path.basename(path)}")
+    "#{Path.rootname(tmp_path)}#{postfix}"
   end
 
   @doc """

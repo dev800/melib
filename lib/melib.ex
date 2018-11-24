@@ -15,6 +15,16 @@ defmodule Melib do
   defdelegate log_error(info \\ nil, opts \\ []), to: @logger
   defdelegate log_inspect(info \\ nil, opts \\ []), to: @logger
 
+  def get(kv, key, default \\ nil)
+
+  def get(kv, key, default) when is_map(kv) do
+    Map.get(kv, key, default)
+  end
+
+  def get(kv, key, default) when is_list(kv) do
+    Keyword.get(kv, key, default)
+  end
+
   def log(info \\ nil, opts \\ []) do
     case Logger.level() do
       :debug -> log_debug(info, opts)

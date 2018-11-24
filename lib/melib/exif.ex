@@ -163,7 +163,7 @@ defmodule Melib.Exif do
   defp extract_tiff(image) do
     Enum.reduce(Melib.Exif.Data.Tiff.fields(), image, fn field_key, image ->
       if value = image[field_key] do
-        tiff = image |> Map.get(:tiff, %{}) |> Map.put(field_key, value)
+        tiff = image |> Melib.get(:tiff, %{}) |> Map.put(field_key, value)
 
         image
         |> Map.put(:tiff, tiff)
@@ -177,7 +177,7 @@ defmodule Melib.Exif do
   defp extract_thumbnail(image) do
     Enum.reduce(Melib.Exif.Data.Thumbnail.fields(), image, fn field_key, image ->
       if value = image |> get_in([:exif, field_key]) do
-        thumbnail = image |> Map.get(:thumbnail, %{}) |> Map.put(field_key, value)
+        thumbnail = image |> Melib.get(:thumbnail, %{}) |> Map.put(field_key, value)
 
         image
         |> Map.put(:thumbnail, thumbnail)
