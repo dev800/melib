@@ -397,7 +397,7 @@ defmodule Melib.Mogrify do
   end
 
   defp _temporary_path_for(path, postfix) do
-    tmp_path = System.tmp_dir() |> Path.join("#{hex_random(16)}-#{Path.basename(path)}")
+    tmp_path = System.tmp_dir() |> Path.join("melib-#{hex_random(16)}-#{Path.basename(path)}")
     "#{Path.rootname(tmp_path)}#{postfix}"
   end
 

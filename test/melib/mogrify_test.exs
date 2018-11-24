@@ -273,14 +273,14 @@ defmodule Melib.MogrifyTest do
       image = open(@fixture) |> copy
       tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
-      assert Regex.match?(~r(#{tmp_dir}#{slash}\w+-bender\.jpg), image.path)
+      assert Regex.match?(~r(#{tmp_dir}melib-#{slash}\w+-bender\.jpg), image.path)
     end
 
     test ".copy when file name has spaces" do
       image = open(@fixture_with_space) |> copy
       tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
-      assert Regex.match?(~r(#{tmp_dir}#{slash}\w+-ben\sder\.jpg), image.path)
+      assert Regex.match?(~r(#{tmp_dir}melib-#{slash}\w+-ben\sder\.jpg), image.path)
     end
 
     test ".verbose" do
