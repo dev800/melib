@@ -62,11 +62,11 @@ defmodule Melib.Mogrify do
     format = image.format
     dirty_format = image.dirty |> Melib.get(:format, format)
 
-      if format == "gif" && dirty_format != "gif" do
-        image |> gif_thumbnail()
-      else
-        image
-      end
+    if format == "gif" && dirty_format != "gif" do
+      image |> gif_thumbnail()
+    else
+      image
+    end
   end
 
   @doc """
@@ -588,20 +588,16 @@ defmodule Melib.Mogrify do
   * font
   """
   def draw_text(image, opts \\ []) do
+    font = opts |> Keyword.get(:font) |> Melib.Config.get_font()
+
     operations =
-      image.operations
-      |> Melib.if_call(not Keyword.has_key?(image.operations, :gravity), fn operations ->
-        operations ++ [gravity: opts |> Keyword.get(:gravity, "SouthEast")]
-      end)
-      |> Melib.if_call(not Keyword.has_key?(image.operations, :file), fn operations ->
-        operations ++ [fill: opts |> Keyword.get(:fill, "black")]
-      end)
-      |> Melib.if_call(not Keyword.has_key?(image.operations, :font), fn operations ->
-        if font = opts |> Keyword.get(:font) |> Melib.Config.get_font() do
-          operations ++ [font: font]
-        else
-          operations
-        end
+      (image.operations ++
+         [
+           gravity: opts |> Keyword.get(:gravity, "SouthEast"),
+           fill: opts |> Keyword.get(:fill, "black")
+         ])
+      |> Melib.if_call(font, fn operations ->
+        operations ++ [font: font]
       end)
       |> Melib.if_call(true, fn operations ->
         x = Keyword.get(opts, :x, 0)

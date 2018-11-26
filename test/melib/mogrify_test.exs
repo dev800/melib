@@ -35,6 +35,7 @@ defmodule Melib.MogrifyTest do
       |> Mogrify.resize("520>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
       |> Mogrify.draw_text(text: "你好世界@hello world 20181126", fill: "red", x: 4, y: 4, font: :default)
+      |> Mogrify.draw_text(text: "你好世界@ABC", fill: "green", gravity: "Center", x: 4, y: 4, font: :default)
       |> Mogrify.create(
         path: @fixture_tmp_folder <> "/Incorrect_sBIT.with_watermark_text_520.jpg"
       )
