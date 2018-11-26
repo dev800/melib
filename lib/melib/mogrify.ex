@@ -596,9 +596,6 @@ defmodule Melib.Mogrify do
       |> Melib.if_call(not Keyword.has_key?(image.operations, :file), fn operations ->
         operations ++ [fill: opts |> Keyword.get(:fill, "black")]
       end)
-      |> Melib.if_call(not Keyword.has_key?(image.operations, :pointsize), fn operations ->
-        operations ++ [pointsize: opts |> Keyword.get(:pointsize, 16)]
-      end)
       |> Melib.if_call(not Keyword.has_key?(image.operations, :font), fn operations ->
         if font = opts |> Keyword.get(:font) |> Melib.Config.get_font() do
           operations ++ [font: font]
@@ -610,8 +607,9 @@ defmodule Melib.Mogrify do
         x = Keyword.get(opts, :x, 0)
         y = Keyword.get(opts, :y, 0)
         text = Keyword.get(opts, :text, "")
+        font_size = Keyword.get(opts, :font_size, 16)
 
-        operations ++ [draw: "text +#{x},+#{y} '#{text}'"]
+        operations ++ [draw: "font-size #{font_size} text +#{x},+#{y} '#{text}'"]
       end)
 
     %{image | operations: operations}
