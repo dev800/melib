@@ -553,23 +553,11 @@ defmodule Melib.Mogrify do
     skip = image.mime_type == "image/gif" and !!opts[:gif_skip]
 
     if height_valid && width_valid && !skip do
-      watermark_opts = []
-
-      watermark_opts =
-        if Keyword.has_key?(operations, :gravity) do
-          watermark_opts
-        else
-          watermark_opts ++ [gravity: opts |> Keyword.get(:gravity, "SouthEast")]
-        end
-
-      watermark_opts =
-        if Keyword.has_key?(operations, :geometry) do
-          watermark_opts
-        else
-          watermark_opts ++ [geometry: opts |> Keyword.get(:geometry, "+0+0")]
-        end
-
-      watermark_opts = watermark_opts ++ ["#{watermark}": :original]
+      watermark_opts = [
+        gravity: opts |> Keyword.get(:gravity, "SouthEast"),
+        geometry: opts |> Keyword.get(:geometry, "+0+0"),
+        "#{watermark}": :original
+      ]
 
       %{image | operations: operations ++ [watermark: watermark_opts]}
     else
@@ -603,7 +591,7 @@ defmodule Melib.Mogrify do
         x = Keyword.get(opts, :x, 0)
         y = Keyword.get(opts, :y, 0)
         text = Keyword.get(opts, :text, "")
-        font_size = Keyword.get(opts, :font_size, 16)
+        font_size = Keyword.get(opts, :font_size, 32)
 
         operations ++ [draw: "font-size #{font_size} text +#{x},+#{y} '#{text}'"]
       end)
