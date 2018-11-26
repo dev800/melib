@@ -2,4 +2,6 @@ use Mix.Config
 
 config :logger, level: :warn
 
-config :melib, :fonts, []
+config :melib, :fonts, [
+  # path_key: "path_value"
+]

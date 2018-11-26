@@ -5,8 +5,12 @@ defmodule Melib do
 
   @logger Application.get_env(:melib, :logger, Melib.Logger)
 
-  def if_call(q, condition, true_fn) do
-    if condition, do: true_fn.(q), else: q
+  def if_call(data, conditions, call_fn) do
+    if conditions do
+      call_fn.(data)
+    else
+      data
+    end
   end
 
   defdelegate log_debug(info \\ nil, opts \\ []), to: @logger

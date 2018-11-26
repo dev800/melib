@@ -30,10 +30,11 @@ defmodule Melib.MogrifyTest do
     test "watermark and resize and text" do
       @fixture_incorrect_sbit
       |> Mogrify.open()
+      |> Mogrify.quality(70)
       |> Mogrify.verbose()
       |> Mogrify.resize("520>")
       |> Mogrify.watermark(@fixture_watermark, gravity: "NorthEast")
-      |> Mogrify.draw_text(text: "你好，图片，美景2017-12-13", fill: "red", x: 4, y: 4)
+      |> Mogrify.draw_text(text: "你好世界@hello world 20181126", fill: "red", x: 4, y: 4, font: :default)
       |> Mogrify.create(
         path: @fixture_tmp_folder <> "/Incorrect_sBIT.with_watermark_text_520.jpg"
       )

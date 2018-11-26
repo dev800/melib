@@ -588,45 +588,31 @@ defmodule Melib.Mogrify do
   * font
   """
   def draw_text(image, opts \\ []) do
-    operations = image.operations
-
     operations =
-      if Keyword.has_key?(operations, :gravity) do
-        operations
-      else
+      image.operations
+      |> Melib.if_call(not Keyword.has_key?(image.operations, :gravity), fn operations ->
         operations ++ [gravity: opts |> Keyword.get(:gravity, "SouthEast")]
-      end
-
-    operations =
-      if Keyword.has_key?(operations, :fill) do
-        operations
-      else
+      end)
+      |> Melib.if_call(not Keyword.has_key?(image.operations, :file), fn operations ->
         operations ++ [fill: opts |> Keyword.get(:fill, "black")]
-      end
-
-    operations =
-      if Keyword.has_key?(operations, :pointsize) do
-        operations
-      else
-        # TODO: 字体大小应该根据图片的大小自适应一下
+      end)
+      |> Melib.if_call(not Keyword.has_key?(image.operations, :pointsize), fn operations ->
         operations ++ [pointsize: opts |> Keyword.get(:pointsize, 16)]
-      end
+      end)
+      |> Melib.if_call(not Keyword.has_key?(image.operations, :font), fn operations ->
+        if font = opts |> Keyword.get(:font) |> Melib.Config.get_font() do
+          operations ++ [font: font]
+        else
+          operations
+        end
+      end)
+      |> Melib.if_call(true, fn operations ->
+        x = Keyword.get(opts, :x, 0)
+        y = Keyword.get(opts, :y, 0)
+        text = Keyword.get(opts, :text, "")
 
-    operations =
-      if Keyword.has_key?(operations, :font) do
-        operations
-      else
-        operations ++ [font: opts |> Keyword.get(:font) |> Melib.Config.get_font()]
-      end
-
-    operations =
-      operations ++
-        [
-          draw:
-            "text +#{Keyword.get(opts, :x, 0)},+#{Keyword.get(opts, :y, 0)} '#{
-              Keyword.get(opts, :text, "")
-            }'"
-        ]
+        operations ++ [draw: "text +#{x},+#{y} '#{text}'"]
+      end)
 
     %{image | operations: operations}
   end
