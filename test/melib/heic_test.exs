@@ -6,7 +6,7 @@ defmodule Melib.HEICTest do
 
   test "read ok" do
     image = Melib.Identify.identify(@heic_file)
-    jpg_image = Melib.HEIC.to_jpeg(image)
+    jpg_image = HEIC.to_jpeg(image)
 
     assert %Melib.Image{
              format: "jpg",
