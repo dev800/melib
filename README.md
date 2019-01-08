@@ -19,30 +19,58 @@ end
 config :melib, :magick_path, "/usr/local/ImageMagick7/bin"
 ```
 
-## Install ImageMagick-7
+## Install ImageMagick7@Mac
+
+```
+brew install libheif liblqr libwmf little-cms perl
+brew install imagemagick@7 --with-libheif --with-liblqr --with-librsvg --with-libwmf --with-openexr
+brew unlink imagemagick@6
+brew link imagemagick@7
+brew info imagemagick@7
+```
+
+## Install ImageMagick-7@centos
 
 ```
 cd /usr/local/src && \
+git clone https://github.com/strukturag/libde265 && \
+cd libde265 && \
+./autogen.sh && \
+./configure && \
+make && \
+make install
+
+cd /usr/local/src && \
+git clone https://github.com/strukturag/libheif && \
+cd libheif && \
+./autogen.sh && \
+./configure && \
+make && \
+make install
+
+cd /usr/local/src && \
+rm -rf ImageMagick7 && \
 wget https://github.com/ImageMagick/ImageMagick/archive/7.0.7-35.tar.gz -O ImageMagick-7.0.7-35.tar.gz && \
 tar xvzf ImageMagick-7.0.7-35.tar.gz && \
 mv ImageMagick-7.0.7-35 ImageMagick7 && \
 cd ImageMagick7 && \
-./configure --prefix=/usr/local/ImageMagick7 --enable-shared  --enable-static --without-perl && \
+./configure --prefix=/usr/local/ImageMagick7 --with-openjp2=yes --with-gvc=yes --with-fftw=yes --with-heic=yes --with-rsvg=yes --with-wmf=yes --with-xml=yes --with-openexr=yes --with-webp=yes && \
 make && \
 make install && \
 cd .. && \
 rm -rf ImageMagick-7.0.7-35.tar.gz
 ```
 
-## Install ImageMagick-6
+## Install ImageMagick-6@centos
 
 ```
 cd /usr/local/src && \
+rm -rf ImageMagick6 && \
 wget https://github.com/ImageMagick/ImageMagick6/archive/6.9.9-47.tar.gz -O ImageMagick-6.9.9-47.tar.gz && \
 tar xvzf ImageMagick-6.9.9-47.tar.gz && \
 mv ImageMagick6-6.9.9-47 ImageMagick6 && \
 cd ImageMagick6 && \
-./configure --prefix=/usr/local/ImageMagick6 --enable-shared  --enable-static --without-perl && \
+./configure --prefix=/usr/local/ImageMagick6 --with-openjp2=yes --with-gvc=yes --with-fftw=yes --with-heic=yes --with-rsvg=yes --with-wmf=yes --with-xml=yes --with-openexr=yes --with-webp=yes && \
 make && \
 make install && \
 cd .. && \
