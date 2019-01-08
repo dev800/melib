@@ -1,12 +1,12 @@
-defmodule Melib.HEICTest do
+defmodule Melib.HeicTest do
   use ExUnit.Case
-  import Melib.HEIC
+  alias Melib.Heic
 
-  @heic_file Path.join(__DIR__, "../fixtures/img/IMG_5364")
+  @heic_file Path.join(__DIR__, "../fixtures/img/heic")
 
   test "read ok" do
     image = Melib.Identify.identify(@heic_file)
-    jpg_image = HEIC.to_jpeg(image)
+    jpg_image = Heic.to_jpeg(image)
 
     assert %Melib.Image{
              format: "jpg",

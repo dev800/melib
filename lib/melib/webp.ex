@@ -1,5 +1,5 @@
-defmodule Melib.Heic do
-  def to_jpeg(%Melib.Image{mime_type: "image/heic"} = image) do
+defmodule Melib.Webp do
+  def to_jpeg(%Melib.Image{mime_type: "image/webp"} = image) do
     Melib.Convert.convert(image, format: "jpeg")
   end
 
