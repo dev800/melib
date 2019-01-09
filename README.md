@@ -22,14 +22,22 @@ config :melib, :magick_path, "/usr/local/ImageMagick7/bin"
 ## Install ImageMagick7@Mac
 
 ```
-brew install libheif liblqr libwmf little-cms perl
-brew install imagemagick@7 --with-libheif --with-liblqr --with-librsvg --with-libwmf --with-openexr
+brew install fftw fontconfig ghostscript libheif liblqr librsvg libwmf little-cms openexr pango perl webp
+brew install imagemagick@7 --with-fftw --with-fontconfig --with-ghostscript --with-libheif --with-liblqr --with-librsvg --with-libwmf --with-little-cms --with-openexr --with-pango --with-perl
 brew unlink imagemagick@6
 brew link imagemagick@7
 brew info imagemagick@7
 ```
 
 ## Install ImageMagick-7@centos
+
+```
+# use linuxbrew
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+# add -> export PATH="$HOME/.linuxbrew/bin:$PATH" -> to ~/.zshrc and ~/.bashrc
+brew install fftw fontconfig ghostscript libheif liblqr librsvg libwmf little-cms openexr pango perl webp
+brew install imagemagick@7 --with-fftw --with-fontconfig --with-ghostscript --with-libheif --with-liblqr --with-librsvg --with-libwmf --with-little-cms --with-openexr --with-pango --with-perl
+```
 
 ```
 cd /usr/local/src && \

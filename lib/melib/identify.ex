@@ -2,6 +2,8 @@ defmodule Melib.Identify do
   alias Melib.Image
   alias Melib.Attachment
 
+  @new_image_formats [:heic, :heif, :webp]
+
   def mime_type(file_path), do: mime_type(file_path, [])
 
   def mime_type(%Image{path: file_path}, opts) do
@@ -37,22 +39,15 @@ defmodule Melib.Identify do
   def identify(file_path), do: identify(file_path, [])
 
   def identify(file_path, opts) do
-    data = %{path: file_path} |> put_mime_type
+    data = %{path: file_path} |> verbose(true)
 
     case data[:mime_type] do
       "image/" <> _format ->
-        media = data |> parse_verbose(file_path, :image, opts)
-
-        if Keyword.get(opts, :verbose, true) do
-          media |> verbose()
-        else
-          media
-        end
+        data |> parse_verbose(file_path, :image, opts)
 
       _ ->
         data |> parse_verbose(file_path, :attachment, opts)
     end
-    |> Map.put(:verbosed, false)
   end
 
   def put_file(nil), do: nil
@@ -132,54 +127,51 @@ defmodule Melib.Identify do
 
   def put_exif(attachment), do: attachment
 
-  def put_mime_type(nil), do: nil
+  defp _generate_postfix(format) do
+    if format && format != "" do
+      "." <> format
+    else
+      ""
+    end
+  end
 
-  def put_mime_type(attachment) do
+  def verbose(attachment, force \\ false)
+
+  def verbose(attachment, _force) do
     mime_type = mime_type(attachment.path)
     format = MIME.extensions(mime_type) |> List.first()
-
-    postfix =
-      if format && format != "" do
-        "." <> format
-      else
-        ""
-      end
-
     animated = format == "gif"
 
-    attachment
-    |> Map.put(:mime_type, mime_type)
-    |> Map.put(:format, format)
-    |> Map.put(:postfix, postfix)
-    |> Map.put(:ext, Path.extname(attachment.path))
-    |> Map.put(:animated, animated)
-  end
+    attachment =
+      attachment
+      |> Map.put(:format, format)
+      |> Map.put(:ext, Path.extname(attachment.path))
+      |> Map.put(:animated, animated)
 
-  def verbose(media, force \\ false)
-  def verbose(nil, _force), do: nil
+    attachment.path
+    |> _identify()
+    |> case do
+      %{image?: false} ->
+        attachment
+        |> Map.put(:mime_type, mime_type)
+        |> Map.put(:postfix, _generate_postfix(format))
 
-  def verbose(%Image{} = image, force) do
-    image = image |> put_exif()
+      %{image?: true, height: height, width: width, frame_count: frame_count, format: format} ->
+        mime_type =
+          if Enum.member?(@new_image_formats, format) do
+            "image/#{format}"
+          else
+            mime_type
+          end
 
-    if is_nil(image.size) or is_nil(image.height) or is_nil(image.width) or force do
-      %{height: height, width: width, frame_count: frame_count} = _identify(image.path, :image)
-
-      {width, height} =
-        _parse_width_and_height(
-          width,
-          height,
-          get_in(image.exif || %{}, [:tiff, :orientation])
-        )
-
-      %{image | height: height, width: width, frame_count: frame_count}
-    else
-      image
+        attachment
+        |> Map.put(:format, format)
+        |> Map.put(:height, height)
+        |> Map.put(:width, width)
+        |> Map.put(:frame_count, frame_count)
+        |> Map.put(:mime_type, mime_type)
+        |> Map.put(:postfix, _generate_postfix(format))
     end
-    |> Map.put(:verbosed, true)
-  end
-
-  def verbose(%Attachment{} = attachment, _force) do
-    attachment
   end
 
   defdelegate put_width_and_height(attachment, force \\ false), to: __MODULE__, as: :verbose
@@ -225,33 +217,46 @@ defmodule Melib.Identify do
 
   def parse_verbose(data, file_path, :image, opts) do
     filename = file_path |> Path.basename()
+    height = data[:height]
+    width = data[:width]
 
-    %Image{
-      animated: data[:animated],
-      ext: data[:ext],
-      format: data[:format],
-      mime_type: data[:mime_type],
-      postfix: data[:postfix],
-      filename: filename,
-      size: get_size(file_path),
-      path: file_path,
-      operations: [],
-      dirty: %{},
-      exif: %{}
-    }
-    |> Melib.if_call(opts[:md5], fn media ->
-      put_md5(media)
-    end)
-    |> Melib.if_call(opts[:sha256], fn media ->
-      put_sha256(media)
-    end)
-    |> Melib.if_call(opts[:sha512], fn media ->
-      put_sha512(media)
-    end)
-    |> fix_sbit
+    image =
+      %Image{
+        animated: data[:animated],
+        ext: data[:ext],
+        format: data[:format],
+        mime_type: data[:mime_type],
+        frame_count: data[:frame_count],
+        postfix: data[:postfix],
+        filename: filename,
+        size: get_size(file_path),
+        path: file_path,
+        operations: [],
+        dirty: %{},
+        exif: %{}
+      }
+      |> Melib.if_call(opts[:md5], fn media ->
+        put_md5(media)
+      end)
+      |> Melib.if_call(opts[:sha256], fn media ->
+        put_sha256(media)
+      end)
+      |> Melib.if_call(opts[:sha512], fn media ->
+        put_sha512(media)
+      end)
+      |> fix_sbit
+      |> put_exif()
+
+    orientation =
+      image
+      |> Map.get(:exif, %{})
+      |> get_in([:tiff, :orientation])
+
+    {width, height} = _parse_width_and_height(width, height, orientation)
+    %Image{image | width: width, height: height}
   end
 
-  defp _identify(file_path, :image) do
+  defp _identify(file_path) do
     case Melib.ImageMagick.run(
            "identify",
            ["-format", "%m:%W:%H:%w:%h\n", file_path],
@@ -264,27 +269,30 @@ defmodule Melib.Identify do
         if filtered_rows |> Enum.any?() do
           frame_count = filtered_rows |> length()
 
-          [_format, width, height | _] =
+          [format, width, height | _] =
             filtered_rows
             |> List.last()
             |> String.split(":", trim: true)
 
+          format = format |> String.downcase()
           width = width |> String.to_integer()
           height = height |> String.to_integer()
-          %{width: width, height: height, frame_count: frame_count}
+
+          %{
+            width: width,
+            height: height,
+            frame_count: frame_count,
+            format: format,
+            image?: true
+          }
         else
           raise Melib.VerboseError,
             message: "#{__MODULE__}._identify -> #{rows_text}"
         end
 
-      {error_message, 1} ->
-        raise Melib.VerboseError,
-          message: "#{__MODULE__}._identify -> #{error_message}"
+      {_error_message, 1} ->
+        %{image?: false}
     end
-  end
-
-  defp _identify(_file_path, :attachment) do
-    %{}
   end
 
   def get_size(file_path) do

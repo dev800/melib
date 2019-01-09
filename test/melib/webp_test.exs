@@ -9,7 +9,7 @@ defmodule Melib.WebpTest do
     jpg_image = Webp.to_jpeg(image)
 
     assert %Melib.Image{
-             format: "jpg",
+             format: "jpeg",
              mime_type: "image/jpeg",
              height: 380,
              width: 380,

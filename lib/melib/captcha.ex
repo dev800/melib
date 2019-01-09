@@ -46,7 +46,7 @@ defmodule Melib.Captcha do
 
     params = params ++ ["+noise", opts[:noise] || "Uniform"] ++ [path]
 
-    case Melib.system_cmd("convert", params) do
+    case Melib.ImageMagick.run("convert", params) do
       {_, 0} ->
         {:ok, path}
 

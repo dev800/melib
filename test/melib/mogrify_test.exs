@@ -277,27 +277,27 @@ defmodule Melib.MogrifyTest do
       image = open(@fixture) |> copy
       tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
-      assert Regex.match?(~r(#{tmp_dir}melib-#{slash}\w+-bender\.jpg), image.path)
+      assert Regex.match?(~r(#{tmp_dir}melib-#{slash}\w+-bender\.jpeg), image.path)
     end
 
     test ".copy when file name has spaces" do
       image = open(@fixture_with_space) |> copy
       tmp_dir = System.tmp_dir() |> Regex.escape()
       slash = if String.ends_with?(tmp_dir, "/"), do: "", else: "/"
-      assert Regex.match?(~r(#{tmp_dir}melib-#{slash}\w+-ben\sder\.jpg), image.path)
+      assert Regex.match?(~r(#{tmp_dir}melib-#{slash}\w+-ben\sder\.jpeg), image.path)
     end
 
     test ".verbose" do
       image = open(@fixture)
 
-      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} =
+      assert %Image{postfix: ".jpeg", ext: ".jpg", height: 292, width: 300, animated: false} =
                verbose(image)
     end
 
     test ".verbose when file name has spaces" do
       image = open(@fixture_with_space)
 
-      assert %Image{postfix: ".jpg", ext: ".jpg", height: 292, width: 300, animated: false} =
+      assert %Image{postfix: ".jpeg", ext: ".jpg", height: 292, width: 300, animated: false} =
                verbose(image)
     end
 

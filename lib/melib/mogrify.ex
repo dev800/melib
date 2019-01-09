@@ -55,7 +55,7 @@ defmodule Melib.Mogrify do
       raise(File.Error)
     end
 
-    %Image{path: path} |> Identify.put_mime_type()
+    %Image{path: path} |> Identify.verbose()
   end
 
   defp _process_image_gif(image) do

@@ -9,7 +9,7 @@ defmodule Melib.HeicTest do
     jpg_image = Heic.to_jpeg(image)
 
     assert %Melib.Image{
-             format: "jpg",
+             format: "jpeg",
              mime_type: "image/jpeg",
              height: 4032,
              width: 3024,
