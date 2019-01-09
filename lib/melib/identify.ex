@@ -2,7 +2,7 @@ defmodule Melib.Identify do
   alias Melib.Image
   alias Melib.Attachment
 
-  @new_image_formats [:heic, :heif, :webp]
+  @new_image_formats ["heic", "heif", "webp"]
 
   def mime_type(file_path), do: mime_type(file_path, [])
 
