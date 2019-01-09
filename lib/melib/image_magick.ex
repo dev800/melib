@@ -8,10 +8,8 @@ defmodule Melib.ImageMagick do
   config :melib, :magick_path, "/usr/local/ImageMagick7/bin"
   """
 
-  @magick_path Application.get_env(:melib, :magick_path, "")
-
   def run(cmd, args, opts \\ []) do
-    @magick_path
+    Application.get_env(:melib, :magick_path, "")
     |> Path.join(cmd)
     |> Melib.system_cmd(args, opts)
   end
