@@ -149,7 +149,7 @@ defmodule Melib.Identify do
       |> Map.put(:animated, animated)
 
     attachment.path
-    |> _identify()
+    |> run_identify()
     |> case do
       %{image?: false} ->
         attachment
@@ -256,7 +256,7 @@ defmodule Melib.Identify do
     %Image{image | width: width, height: height}
   end
 
-  defp _identify(file_path) do
+  def run_identify(file_path) do
     case Melib.ImageMagick.run(
            "identify",
            ["-format", "%m:%W:%H:%w:%h\n", file_path],
