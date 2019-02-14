@@ -34,7 +34,8 @@ defmodule Melib.Mixfile do
       {:qrcode, "~> 0.0"},
       {:mime, "~> 1.2"},
       {:timex, "~> 3.0"},
-      {:ex_doc, "~> 0.14", only: :dev, runtime: false}
+      {:inch_ex, "~> 0.0", only: :docs},
+      {:ex_doc, "~> 0.0", only: :dev, runtime: false}
     ]
   end
 
