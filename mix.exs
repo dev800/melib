@@ -5,13 +5,13 @@ defmodule Melib.Mixfile do
     [
       app: :melib,
       name: "Melib",
-      version: "0.1.10",
+      version: "0.1.11",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: "Lib for elixir",
-      source_url: "https://github.com/gialib/melib",
-      homepage_url: "https://github.com/gialib/melib",
+      source_url: "https://github.com/dev800/melib",
+      homepage_url: "https://github.com/dev800/melib",
       package: package(),
       docs: [
         extras: ["README.md"],
@@ -43,7 +43,7 @@ defmodule Melib.Mixfile do
       files: ["priv", "lib", "mix.exs", "README*"],
       maintainers: ["happy"],
       licenses: ["BSD 3-Clause"],
-      links: %{"Github" => "https://github.com/gialib/melib"}
+      links: %{"Github" => "https://github.com/dev800/melib"}
     }
   end
 end
