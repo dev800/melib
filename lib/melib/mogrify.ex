@@ -572,7 +572,6 @@ defmodule Melib.Mogrify do
   * text
   * gravity
   * fill
-  * pointsize
   * font
   """
   def draw_text(image, opts \\ []) do

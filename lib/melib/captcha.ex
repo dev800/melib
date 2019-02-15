@@ -14,7 +14,7 @@ defmodule Melib.Captcha do
   * `bezier_width` - 干扰线加粗, 默认值：2
   * `bezier` - 干扰线条数, 默认值：3
   * `label` - 验证码内容
-  * `pointsize` - 字体大小，默认为20
+  * `point_size` - 字体大小，默认为20
   * `noise` - 增加噪点，可选样式：
   `Gaussian`、`Impulse`、`Laplacian`、`Multiplicative`、`Poisson`、`Uniform`，
   默认为`Uniform`无噪点
@@ -34,7 +34,7 @@ defmodule Melib.Captcha do
 
     params =
       ["xc:[#{opts[:size] || "100x40"}!]"]
-      |> _append_params(:pointsize, "#{opts[:pointsize] || 20}")
+      |> _append_params(:pointsize, "#{opts[:point_size] || opts[:pointsize] || 20}")
       |> _append_params(:font, Config.get_font(opts[:font] || :default))
       |> _append_params(:gravity, "NorthWest")
       |> _append_params(:strokewidth, "#{opts[:font_width] || 1}")
